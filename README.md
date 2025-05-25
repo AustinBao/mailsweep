@@ -1,16 +1,49 @@
-<<<<<<< HEAD
-# mailsweep
-=======
-# React + Vite
+# 📭 Gmail Unsubscribe Manager
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A full-stack web app that connects to your Gmail inbox, finds all subscription emails with unsubscribe links, and lets you easily unsubscribe with one click.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Features
 
-## Expanding the ESLint configuration
+- 🔐 Google OAuth login
+- 📬 Gmail API integration
+- 🔗 Detects unsubscribe links from emails
+- ✅ Lets users unsubscribe from newsletters with one click
+- 💾 Tracks unsubscribed status in a PostgreSQL database
+- 🌐 Deployed frontend + backend (Vercel + Railway/Render)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
->>>>>>> f12fadf (setup vite)
+---
+
+## 🛠️ Tech Stack
+
+### Frontend
+- React.js
+- Tailwind CSS
+- OAuth via `@react-oauth/google`
+
+### Backend
+- Express.js
+- Node.js
+- Gmail API via `googleapis`
+
+### Database
+- PostgreSQL
+- SQL schema includes `users` and `subscriptions` tables
+
+---
+
+## 🧠 How It Works
+
+1. **User logs in** with their Google account via OAuth.
+2. App uses Gmail API to fetch recent emails.
+3. Filters emails with `List-Unsubscribe` headers or links.
+4. Displays them in a dashboard.
+5. User clicks “Unsubscribe” → app opens the unsubscribe link and marks it as unsubscribed in the DB.
+
+---
+
+🧑‍💻 Authors
+Galileo Kim & Austin Bao
+
+

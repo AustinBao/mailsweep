@@ -18,6 +18,8 @@ const App = () => {
     <div>
       <h1>Hello</h1>
       <Subscriptions subscriptions={subscriptions} />
+
+      <a href="http://localhost:3001/auth/google">Sign In with Google</a>
     </div>
   )
 }

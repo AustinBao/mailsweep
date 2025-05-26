@@ -33,11 +33,11 @@ db.connect();
 
 
 passport.serializeUser((user, cb) => {
-  cb(null, user);  // storing the whole user object in session
+  cb(null, user);  // stores the user object in session
 });
 
 passport.deserializeUser((user, cb) => {
-  cb(null, user); 
+  cb(null, user);  // gets the user object when reload
 });
 
 //database soon
@@ -68,7 +68,6 @@ app.get('/auth/google/home', async (request, response) => {
         message: 'Google OAuth is working',
     })
 })
-
 
 app.get('/api/subscriptions', (request, response) => {
     response.json(subscriptions)
@@ -113,7 +112,6 @@ passport.use(
       }
     }) 
 )
-
 
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`)

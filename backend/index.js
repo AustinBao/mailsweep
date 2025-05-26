@@ -1,11 +1,18 @@
 const express = require('express')
 const app = express()
+const cors = require('cors')
+
+app.use(cors())
 
 //database soon
 let subscriptions = [
     {
      "id": "1",
      "address": "bob@gmail.com"
+    },
+    {
+     "id": "2",
+     "address": "sponge@gmail.com"
     }
 ]
 

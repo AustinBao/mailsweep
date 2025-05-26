@@ -1,25 +1,46 @@
 import { useState, useEffect } from "react"
 import emailServices from './services/email'
+import { FcGoogle } from "react-icons/fc"
+import Paper from '@mui/material/Paper';
+
 
 const Subscriptions = ({ subscriptions }) => {
   return (
     <div>
-      {subscriptions.map((s) => <p key={s.id}>address: {s.address}</p>)}
+      {subscriptions.map((s) => <p key={s.id}>Name: {s.name} | Email: {s.email}</p>)}
     </div>
   )
 }
 
+
 const App = () => {
   const [subscriptions, setSubscriptions] = useState([])
 
-  useEffect(() => {emailServices.getAll().then(initialSubscriptions => setSubscriptions(initialSubscriptions))}, [])
+  useEffect(() => {emailServices.getAllUsers().then(initialSubscriptions => setSubscriptions(initialSubscriptions))}, [])
 
   return (
     <div>
       <h1>Hello</h1>
       <Subscriptions subscriptions={subscriptions} />
 
-      <a href="http://localhost:3001/auth/google">Sign In with Google</a>
+      <a href="http://localhost:3001/auth/google">
+        <button>
+          <FcGoogle />
+          Sign in with Google
+        </button>
+      </a>
+
+      <Paper 
+        sx={{
+          bgcolor: "pink",
+          width: "100px",
+          padding: "10px",
+          margin: "10px"
+        }}
+        elevation={1}> 
+          hello 
+      </Paper>
+
     </div>
   )
 }

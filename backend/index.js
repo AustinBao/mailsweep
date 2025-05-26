@@ -2,17 +2,20 @@ import pg from "pg";
 import cors from 'cors'
 import env from "dotenv";
 import express from 'express'
+import { google } from 'googleapis';
 import passport from "passport";
 import bodyParser from "body-parser";
 import session from 'express-session';
-import GoogleStrategy from "passport-google-oauth2"
-
+import GoogleStrategy from "passport-google-oauth2";
 
 const app = express()
 const PORT = 3001
 env.config();
 
-app.use(cors())
+app.use(cors({
+  origin: 'http://localhost:5173', 
+  credentials: true  // needed for auth 
+}));
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(session({
@@ -40,77 +43,87 @@ passport.deserializeUser((user, cb) => {
   cb(null, user);  // gets the user object when reload
 });
 
-//database soon
-let subscriptions = [
-    {
-     "id": "1",
-     "address": "bob@gmail.com"
-    },
-    {
-     "id": "2",
-     "address": "sponge@gmail.com"
-    }
-]
-
 app.get('/', async (request, response) => {
-    const result = await db.query('SELECT * FROM users');
-    console.log(result.rows)
-
     response.status(200).json({
         status: 'success',
         message: 'REST APIs are working',
     })
 })
 
+
+app.get("/api/gmail", async (req, res) => {
+  if (!req.isAuthenticated()) {
+    return res.status(401).send("Not authenticated");
+  }
+  const accessToken = req.user.accessToken;
+  console.log("Access Token:", accessToken);
+
+  const oauth2Client = new google.auth.OAuth2();
+  oauth2Client.setCredentials({ access_token: accessToken });
+  const gmail = google.gmail({ version: "v1", auth: oauth2Client });
+  try {
+    const result = await gmail.users.messages.list({ userId: "me", maxResults: 5 });
+    res.json(result.data);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Failed to fetch Gmail data");
+  }
+});
+
+
 app.get('/auth/google/home', async (request, response) => {
     response.status(200).json({
-        status: 'success',
-        message: 'Google OAuth is working',
+      status: 'success',
+      message: 'Google OAuth is working',
     })
 })
 
-app.get('/api/subscriptions', (request, response) => {
-    response.json(subscriptions)
+app.get('/api/subscriptions', async (request, response) => {
+  const result = await db.query('SELECT * FROM users');
+  const subscriptions = result.rows;
+  response.json(subscriptions);
 })
 
 // Route that starts Google OAuth login
 app.get("/auth/google", passport.authenticate("google", {
-    scope: ["profile", "email"],
+    scope: ["profile", "email", "https://www.googleapis.com/auth/gmail.readonly"],
 }));
 
 // Google redirects to this route after user sign in
 app.get("/auth/google/callback", passport.authenticate("google", {
-  successRedirect: "http://localhost:5173/home",       // successful
-  failureRedirect: "http://localhost:5173/",      // unsuccessful (could go to login page or something)
+  successRedirect: "http://localhost:5173/home",       
+  failureRedirect: "http://localhost:5173/login",
 }));
 
-passport.use(
-    "google",
-    new GoogleStrategy({
-        clientID: process.env.GOOGLE_CLIENT_ID,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: "http://localhost:3001/auth/google/callback",
-        userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo",
-    }, async(accessToken, refreshToken, profile, cb) => {
-        try {
-        console.log(profile);
-        const result = await db.query("SELECT * FROM users WHERE email = $1", [
-          profile.email,
-        ]);
-        if (result.rows.length === 0) {
-            const fullName = profile.given_name + " " + profile.family_name
-          const newUser = await db.query(
-            "INSERT INTO users (google_id, email, name) VALUES ($1, $2, $3)",
-            [profile.id, profile.email, fullName]
-          );
-          return cb(null, newUser.rows[0]);
-        } else {
-          return cb(null, result.rows[0]);
-        }
-      } catch (err) {
-        return cb(err);
+passport.use("google", new GoogleStrategy({
+  clientID: process.env.GOOGLE_CLIENT_ID,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  callbackURL: "http://localhost:3001/auth/google/callback",
+  userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo"
+  }, async(accessToken, refreshToken, profile, cb) => {
+    try {
+      const userFullName = profile.given_name + " " + profile.family_name;
+      const userEmail = profile.email;
+      const userId = profile.id;
+      const result = await db.query("SELECT * FROM users WHERE email = $1", [userEmail]);
+      let user;
+      
+      if (result.rows.length === 0) {    // New USER
+        const newUser = await db.query("INSERT INTO users (google_id, email, name, access_token) VALUES ($1, $2, $3, $4) RETURNING *", 
+          [userId, userEmail, userFullName, accessToken]
+        );
+        user = newUser.rows[0];
+
+      } else {   // Existing USER
+        user = result.rows[0];
       }
-    }) 
+      user.accessToken = accessToken;
+
+      return cb(null, user);
+    } catch (err) {
+      return cb(err);
+    }
+  }) 
 )
 
 app.listen(PORT, () => {

@@ -67,10 +67,11 @@ app.get("/api/gmail", async (req, res) => {
     // userId: "me" means “use the currently authenticated user.”
 
     console.log(result.data);
-    console.log(result.data.messages[0].id);
-    const oneEmailTest = await gmail.users.messages.get({ userId: "me", id: result.data.messages[0].id }); // users.messages.list is a Gmail API function.
+    console.log(result.data.messages[4].id);
+    const oneEmailTest = await gmail.users.messages.get({ userId: "me", id: result.data.messages[4].id }); // users.messages.list is a Gmail API function.
     console.log(oneEmailTest.data)
-    const decodedString = Buffer.from(oneEmailTest.data.payload.body.data, 'base64').toString('utf-8');
+    //decoded string must use "payload.parts" if it is a multipart/alternative email because the payload comes in multiple parts
+    const decodedString = Buffer.from(oneEmailTest.data.payload.parts[1].body.data, 'base64').toString('utf-8');
     console.log(decodedString)
     const $ = cheerio.load(decodedString);
     const $a = $('a:contains("Unsubscribe")');

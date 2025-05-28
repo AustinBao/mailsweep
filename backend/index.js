@@ -6,6 +6,8 @@ import { google } from 'googleapis';  // googleapis gives you tools to talk to G
 import passport from "passport";
 import session from 'express-session';  
 import GoogleStrategy from "passport-google-oauth2";
+import * as cheerio from 'cheerio';
+
 
 const app = express()
 const PORT = 3001
@@ -63,6 +65,18 @@ app.get("/api/gmail", async (req, res) => {
   try {
     const result = await gmail.users.messages.list({ userId: "me", maxResults: 5 }); // users.messages.list is a Gmail API function.
     // userId: "me" means “use the currently authenticated user.”
+
+    console.log(result.data);
+    console.log(result.data.messages[0].id);
+    const oneEmailTest = await gmail.users.messages.get({ userId: "me", id: result.data.messages[0].id }); // users.messages.list is a Gmail API function.
+    console.log(oneEmailTest.data)
+    const decodedString = Buffer.from(oneEmailTest.data.payload.body.data, 'base64').toString('utf-8');
+    console.log(decodedString)
+    const $ = cheerio.load(decodedString);
+    const $a = $('a:contains("Unsubscribe")');
+    console.log($a["0"].attribs.href)
+
+
     res.json(result.data);
   } catch (err) {
     console.error(err);

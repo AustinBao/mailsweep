@@ -63,22 +63,53 @@ app.get("/api/gmail", async (req, res) => {
   const gmail = google.gmail({ version: "v1", auth: oauth2Client }); // Now this client is authorized to access the user’s Gmail.
   // You’re telling Google: "I want to use Gmail API version 1." auth is your authorized client. Now you can call Gmail API methods.
   try {
-    const result = await gmail.users.messages.list({ userId: "me", maxResults: 5 }); // users.messages.list is a Gmail API function.
     // userId: "me" means “use the currently authenticated user.”
+    const result = await gmail.users.messages.list({ userId: "me", maxResults: 5 }); // users.messages.list is a Gmail API function.
+    // console.log(result.data);
+    let unsubLinks = []
 
-    console.log(result.data);
-    console.log(result.data.messages[4].id);
-    const oneEmailTest = await gmail.users.messages.get({ userId: "me", id: result.data.messages[4].id }); // users.messages.list is a Gmail API function.
-    console.log(oneEmailTest.data)
-    //decoded string must use "payload.parts" if it is a multipart/alternative email because the payload comes in multiple parts
-    const decodedString = Buffer.from(oneEmailTest.data.payload.parts[1].body.data, 'base64').toString('utf-8');
-    console.log(decodedString)
-    const $ = cheerio.load(decodedString);
-    const $a = $('a:contains("Unsubscribe")');
-    console.log($a["0"].attribs.href)
+    for (let message of result.data.messages) {
+      const actualEmail = await gmail.users.messages.get({ userId: "me", id: message.id }); 
+      // console.log(actualEmail.data)
+      
+      const headers = actualEmail.data.payload.headers;
+      console.log(headers)
+      
+      let fromHeader;
+      for (let i = 0; i < headers.length; i++) {
+        const header = headers[i];
+        if (header.name.toLowerCase() === "from") {
+          fromHeader = header;
+          break; 
+        }
+      }
+      const sender = fromHeader ? fromHeader.value : "Unknown sender";
+      console.log("Sender:", sender);
+      //decoded string must use "payload.parts" if it is a multipart/alternative email because the payload comes in multiple parts
+      let decodedString;
+      if (actualEmail.data.payload.mimeType == "text/html"){
+        decodedString = Buffer.from(actualEmail.data.payload.body.data, 'base64').toString('utf-8');
+      } else {  // handles multipart/alternative
+        decodedString = Buffer.from(actualEmail.data.payload.parts[1].body.data, 'base64').toString('utf-8');
+      }
+      // console.log(decodedString)
+      const $ = cheerio.load(decodedString);
+      const allLinks = $('a');
+      const linkArray = allLinks.toArray();
 
+      for (let i = 0; i < linkArray.length; i++) {
+        const linkElement = linkArray[i];
+        // console.log(linkElement);
+        const linkText = $(linkElement).text().toLowerCase();   
 
+        if (linkText.includes("unsubscribe")) {
+          unsubLinks.push(linkElement.attribs.href);
+        }
+      }
+    }
+    // console.log(unsubLinks);
     res.json(result.data);
+
   } catch (err) {
     console.error(err);
     res.status(500).send("Failed to fetch Gmail data");

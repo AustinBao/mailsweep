@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react"
 import emailServices from './services/email'
 import { FcGoogle } from "react-icons/fc"
-import Paper from '@mui/material/Paper';
 
 
 const Subscriptions = ({ subscriptions }) => {
@@ -29,18 +28,6 @@ const App = () => {
           Sign in with Google
         </button>
       </a>
-
-      <Paper 
-        sx={{
-          bgcolor: "pink",
-          width: "100px",
-          padding: "10px",
-          margin: "10px"
-        }}
-        elevation={1}> 
-          hello 
-      </Paper>
-
     </div>
   )
 }

@@ -4,12 +4,7 @@ import emailServices from './services/email'
 const Home = () => {
   const [mail, setMail] = useState([])
 
-  useEffect(() => {
-    emailServices.getMail().then(data => {
-      console.log(data)
-      setMail(data)
-    })
-  }, [])
+  useEffect(() => {emailServices.getMail().then(data => setMail(data))}, [])
 
   return (
     <div>

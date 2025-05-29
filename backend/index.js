@@ -89,7 +89,7 @@ app.get("/api/gmail", async (req, res) => {
       const sender = fromHeader ? fromHeader.value : "Unknown sender";
 
       let decodedString;
-      let payload = actualEmail.data.payload
+      let payload = actualEmail.data.payload;
       if (payload.mimeType == "text/html"){
         decodedString = Buffer.from(payload.body.data, 'base64').toString('utf-8');
       } else if (payload.mimeType == "multipart/alternative" || payload.mimeType == "multipart/mixed" || payload.mimeType == "multipart/related") {  // handles multipart/alternative or mixed
@@ -129,7 +129,6 @@ app.get("/api/gmail", async (req, res) => {
     for (let i = 0; i < senders.length; i++) {
       saveSubscriptionsToDB(userId, senders[i], unsubLinks[i]);
     }
-
     res.json(result.data);
 
   } catch (err) {
@@ -160,6 +159,14 @@ app.get('/api/subscriptions', async (request, response) => {
   response.json(subscriptions);
 })
 
+app.get('/api/check-auth', (req, res) => { 
+  if (req.isAuthenticated()) {
+    res.json({ authenticated: true, user: req.user });
+  } else {
+    res.status(401).json({ authenticated: false });
+  }
+});
+
 // User is sent to Google to log in and approve your app.
 app.get("/auth/google", passport.authenticate("google", {
     scope: ["profile", "email", "https://www.googleapis.com/auth/gmail.readonly"],
@@ -171,10 +178,14 @@ app.get("/auth/google/callback", passport.authenticate("google", {
   failureRedirect: "http://localhost:5173/login",
 }));
 
-app.post('/logout', function(req, res, next) {  // From doc. Not added yet
-  req.logout(function(err) {
+
+app.post('/logout', function(req, res, next) {  // copied directly from doc. 
+  req.logout(function(err) { // will remove the req.user (wipes the entire session) 
     if (err) { return next(err); }
-    res.redirect('/');
+    req.session.destroy(() => {
+      res.clearCookie('connect.sid'); // name of the session cookie by default
+      res.redirect('/');
+    });
   });
 });
 

@@ -59,11 +59,12 @@ app.get("/api/gmail", async (req, res) => {
   }
   const accessToken = req.user.accessToken;
   const userId = req.user.id;
-  
+
   const oauth2Client = new google.auth.OAuth2();  //  creates a Google auth client.
   oauth2Client.setCredentials({ access_token: accessToken }); // add user's access token after logging in to Google.
   const gmail = google.gmail({ version: "v1", auth: oauth2Client }); // Now this client is authorized to access the user’s Gmail.
   // You’re telling Google: "I want to use Gmail API version 1." auth is your authorized client. Now you can call Gmail API methods.
+
   try {
     // userId: "me" means “use the currently authenticated user.”
     const result = await gmail.users.messages.list({ userId: "me", maxResults: 5 }); // users.messages.list is a Gmail API function.
@@ -86,13 +87,12 @@ app.get("/api/gmail", async (req, res) => {
         }
       }
       const sender = fromHeader ? fromHeader.value : "Unknown sender";
-      console.log("Sender:", sender);
 
       let decodedString;
       let payload = actualEmail.data.payload
       if (payload.mimeType == "text/html"){
         decodedString = Buffer.from(payload.body.data, 'base64').toString('utf-8');
-      } else if (payload.mimeType == "multipart/alternative" || payload.mimeType == "multipart/mixed") {  // handles multipart/alternative or mixed
+      } else if (payload.mimeType == "multipart/alternative" || payload.mimeType == "multipart/mixed" || payload.mimeType == "multipart/related") {  // handles multipart/alternative or mixed
         var parts = payload.parts
 
         while (parts.length) {
@@ -127,11 +127,9 @@ app.get("/api/gmail", async (req, res) => {
     }
 
     for (let i = 0; i < senders.length; i++) {
-      saveSubscriptionsToDB()
+      saveSubscriptionsToDB(userId, senders[i], unsubLinks[i]);
     }
 
-    // console.log(unsubLinks);
-    console.log(senders)
     res.json(result.data);
 
   } catch (err) {
@@ -141,7 +139,10 @@ app.get("/api/gmail", async (req, res) => {
 });
 
 async function saveSubscriptionsToDB (userId, sender, unsubLink) {
-  await db.query("INSERT INTO subscriptions (user_id, sender_address, subject, unsubscribe_link, resubscribe_link, is_unsubscribed, unsubscribed_at) VALUES ($1, $2, $3, $4, $5, $6, $7)", 
+  await db.query(`INSERT INTO subscriptions 
+    (user_id, sender_address, subject, unsubscribe_link, resubscribe_link, is_unsubscribed, unsubscribed_at) 
+    VALUES ($1, $2, $3, $4, $5, $6, $7) 
+    ON CONFLICT (user_id, sender_address) DO NOTHING`, // will stop the error from being triggered if (user_id, sender_address) pair already exists.
     [userId, sender, null, unsubLink, null, false, null]
   );
 }

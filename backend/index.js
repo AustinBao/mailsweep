@@ -6,7 +6,7 @@ import { google } from 'googleapis';  // googleapis gives you tools to talk to G
 import passport from "passport";
 import session from 'express-session';  
 import GoogleStrategy from "passport-google-oauth2";
-import * as cheerio from 'cheerio';
+import processMessage from "./processMessage.js";
 
 
 const app = express()
@@ -67,68 +67,25 @@ app.get("/api/gmail", async (req, res) => {
 
   try {
     // userId: "me" means “use the currently authenticated user.”
-    const result = await gmail.users.messages.list({ userId: "me", maxResults: 5 }); // users.messages.list is a Gmail API function.
+    const result = await gmail.users.messages.list({ userId: "me", maxResults: 6 }); // users.messages.list is a Gmail API function.
     
     let unsubLinks = []
     let senders = []
 
     for (let message of result.data.messages) {
-      const actualEmail = await gmail.users.messages.get({ userId: "me", id: message.id }); 
-      
-      const headers = actualEmail.data.payload.headers;
-      // console.log(headers)
-      
-      let fromHeader;
-      for (let i = 0; i < headers.length; i++) {
-        const header = headers[i];
-        if (header.name.toLowerCase() === "from") {
-          fromHeader = header;
-          break; 
-        }
-      }
-      const sender = fromHeader ? fromHeader.value : "Unknown sender";
-
-      let decodedString;
-      let payload = actualEmail.data.payload;
-      if (payload.mimeType == "text/html"){
-        decodedString = Buffer.from(payload.body.data, 'base64').toString('utf-8');
-      } else if (payload.mimeType == "multipart/alternative" || payload.mimeType == "multipart/mixed" || payload.mimeType == "multipart/related") {  // handles multipart/alternative or mixed
-        var parts = payload.parts
-
-        while (parts.length) {
-          //shift removes the first element of an array and returns it
-          var part = parts.shift()
-          if (part.parts) {
-            parts = parts.concat(part.parts)
-          } else if (part.mimeType === 'text/html') {
-            decodedString = Buffer.from(part.body.data, 'base64').toString('utf-8')
-            break
-          }
-        }
-      } else {
-        console.log(payload.mimeType)
-      }
-      
-      if (decodedString) {
-        const $ = cheerio.load(decodedString);
-        const allLinks = $('a');
-        const linkArray = allLinks.toArray();
-
-        for (let i = 0; i < linkArray.length; i++) {
-          const linkElement = linkArray[i];
-          const linkText = $(linkElement).text().toLowerCase();   
-
-          if (linkText.includes("unsubscribe")) {
-            unsubLinks.push(linkElement.attribs.href);
-            senders.push(sender)
-          }
-        }
-      }
+      const data = await processMessage(gmail, message.id)
+      if (data) {
+        unsubLinks.push(data.unsubLink)
+        senders.push(data.sender)
+      } 
     }
 
-    for (let i = 0; i < senders.length; i++) {
-      saveSubscriptionsToDB(userId, senders[i], unsubLinks[i]);
-    }
+    // console.log(unsubLinks, senders)
+
+    // for (let i = 0; i < senders.length; i++) {
+    //   saveSubscriptionsToDB()
+    // }
+
     res.json(result.data);
 
   } catch (err) {

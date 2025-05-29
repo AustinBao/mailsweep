@@ -81,11 +81,9 @@ app.get("/api/gmail", async (req, res) => {
     }
 
     // console.log(unsubLinks, senders)
-
-    // for (let i = 0; i < senders.length; i++) {
-    //   saveSubscriptionsToDB()
-    // }
-
+    for (let i = 0; i < senders.length; i++) {
+      saveSubscriptionsToDB(userId, senders[i], unsubLinks[i]);
+    }
     res.json(result.data);
 
   } catch (err) {

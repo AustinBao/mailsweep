@@ -6,7 +6,7 @@ import { google } from 'googleapis';  // googleapis gives you tools to talk to G
 import passport from "passport";
 import session from 'express-session';  
 import GoogleStrategy from "passport-google-oauth2";
-import * as cheerio from 'cheerio';
+import processMessage from "./processMessage.js";
 
 
 const app = express()
@@ -59,79 +59,31 @@ app.get("/api/gmail", async (req, res) => {
   }
   const accessToken = req.user.accessToken;
   const userId = req.user.id;
-  
+
   const oauth2Client = new google.auth.OAuth2();  //  creates a Google auth client.
   oauth2Client.setCredentials({ access_token: accessToken }); // add user's access token after logging in to Google.
   const gmail = google.gmail({ version: "v1", auth: oauth2Client }); // Now this client is authorized to access the user’s Gmail.
   // You’re telling Google: "I want to use Gmail API version 1." auth is your authorized client. Now you can call Gmail API methods.
+
   try {
     // userId: "me" means “use the currently authenticated user.”
-    const result = await gmail.users.messages.list({ userId: "me", maxResults: 5 }); // users.messages.list is a Gmail API function.
+    const result = await gmail.users.messages.list({ userId: "me", maxResults: 6 }); // users.messages.list is a Gmail API function.
     
     let unsubLinks = []
     let senders = []
 
     for (let message of result.data.messages) {
-      const actualEmail = await gmail.users.messages.get({ userId: "me", id: message.id }); 
-      
-      const headers = actualEmail.data.payload.headers;
-      // console.log(headers)
-      
-      let fromHeader;
-      for (let i = 0; i < headers.length; i++) {
-        const header = headers[i];
-        if (header.name.toLowerCase() === "from") {
-          fromHeader = header;
-          break; 
-        }
-      }
-      const sender = fromHeader ? fromHeader.value : "Unknown sender";
-      console.log("Sender:", sender);
-
-      let decodedString;
-      let payload = actualEmail.data.payload
-      if (payload.mimeType == "text/html"){
-        decodedString = Buffer.from(payload.body.data, 'base64').toString('utf-8');
-      } else if (payload.mimeType == "multipart/alternative" || payload.mimeType == "multipart/mixed") {  // handles multipart/alternative or mixed
-        var parts = payload.parts
-
-        while (parts.length) {
-          //shift removes the first element of an array and returns it
-          var part = parts.shift()
-          if (part.parts) {
-            parts = parts.concat(part.parts)
-          } else if (part.mimeType === 'text/html') {
-            decodedString = Buffer.from(part.body.data, 'base64').toString('utf-8')
-            break
-          }
-        }
-      } else {
-        console.log(payload.mimeType)
-      }
-      
-      if (decodedString) {
-        const $ = cheerio.load(decodedString);
-        const allLinks = $('a');
-        const linkArray = allLinks.toArray();
-
-        for (let i = 0; i < linkArray.length; i++) {
-          const linkElement = linkArray[i];
-          const linkText = $(linkElement).text().toLowerCase();   
-
-          if (linkText.includes("unsubscribe")) {
-            unsubLinks.push(linkElement.attribs.href);
-            senders.push(sender)
-          }
-        }
-      }
+      const data = await processMessage(gmail, message.id)
+      if (data) {
+        unsubLinks.push(data.unsubLink)
+        senders.push(data.sender)
+      } 
     }
 
+    // console.log(unsubLinks, senders)
     for (let i = 0; i < senders.length; i++) {
-      saveSubscriptionsToDB()
+      saveSubscriptionsToDB(userId, senders[i], unsubLinks[i]);
     }
-
-    // console.log(unsubLinks);
-    console.log(senders)
     res.json(result.data);
 
   } catch (err) {
@@ -141,7 +93,10 @@ app.get("/api/gmail", async (req, res) => {
 });
 
 async function saveSubscriptionsToDB (userId, sender, unsubLink) {
-  await db.query("INSERT INTO subscriptions (user_id, sender_address, subject, unsubscribe_link, resubscribe_link, is_unsubscribed, unsubscribed_at) VALUES ($1, $2, $3, $4, $5, $6, $7)", 
+  await db.query(`INSERT INTO subscriptions 
+    (user_id, sender_address, subject, unsubscribe_link, resubscribe_link, is_unsubscribed, unsubscribed_at) 
+    VALUES ($1, $2, $3, $4, $5, $6, $7) 
+    ON CONFLICT (user_id, sender_address) DO NOTHING`, // will stop the error from being triggered if (user_id, sender_address) pair already exists.
     [userId, sender, null, unsubLink, null, false, null]
   );
 }
@@ -159,6 +114,14 @@ app.get('/api/subscriptions', async (request, response) => {
   response.json(subscriptions);
 })
 
+app.get('/api/check-auth', (req, res) => { 
+  if (req.isAuthenticated()) {
+    res.json({ authenticated: true, user: req.user });
+  } else {
+    res.status(401).json({ authenticated: false });
+  }
+});
+
 // User is sent to Google to log in and approve your app.
 app.get("/auth/google", passport.authenticate("google", {
     scope: ["profile", "email", "https://www.googleapis.com/auth/gmail.readonly"],
@@ -170,10 +133,14 @@ app.get("/auth/google/callback", passport.authenticate("google", {
   failureRedirect: "http://localhost:5173/login",
 }));
 
-app.post('/logout', function(req, res, next) {  // From doc. Not added yet
-  req.logout(function(err) {
+
+app.post('/logout', function(req, res, next) {  // copied directly from doc. 
+  req.logout(function(err) { // will remove the req.user (wipes the entire session) 
     if (err) { return next(err); }
-    res.redirect('/');
+    req.session.destroy(() => {
+      res.clearCookie('connect.sid'); // name of the session cookie by default
+      res.redirect('/');
+    });
   });
 });
 

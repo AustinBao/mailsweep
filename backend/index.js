@@ -58,6 +58,8 @@ app.get("/api/gmail", async (req, res) => {
     return res.status(401).send("Not authenticated");
   }
   const accessToken = req.user.accessToken;
+  const userId = req.user.id;
+  
   const oauth2Client = new google.auth.OAuth2();  //  creates a Google auth client.
   oauth2Client.setCredentials({ access_token: accessToken }); // add user's access token after logging in to Google.
   const gmail = google.gmail({ version: "v1", auth: oauth2Client }); // Now this client is authorized to access the user’s Gmail.
@@ -102,12 +104,10 @@ app.get("/api/gmail", async (req, res) => {
             decodedString = Buffer.from(part.body.data, 'base64').toString('utf-8')
             break
           }
-
         }
       } else {
         console.log(payload.mimeType)
       }
-      
       
       if (decodedString) {
         const $ = cheerio.load(decodedString);
@@ -125,6 +125,11 @@ app.get("/api/gmail", async (req, res) => {
         }
       }
     }
+
+    for (let i = 0; i < senders.length; i++) {
+      saveSubscriptionsToDB()
+    }
+
     // console.log(unsubLinks);
     console.log(senders)
     res.json(result.data);
@@ -135,6 +140,11 @@ app.get("/api/gmail", async (req, res) => {
   }
 });
 
+async function saveSubscriptionsToDB (userId, sender, unsubLink) {
+  await db.query("INSERT INTO subscriptions (user_id, sender_address, subject, unsubscribe_link, resubscribe_link, is_unsubscribed, unsubscribed_at) VALUES ($1, $2, $3, $4, $5, $6, $7)", 
+    [userId, sender, null, unsubLink, null, false, null]
+  );
+}
 
 app.get('/auth/google/home', async (request, response) => {
     response.status(200).json({
@@ -185,18 +195,17 @@ passport.use("google", new GoogleStrategy({  // GoogleStrategy is a Passport str
       let user;
       
       if (result.rows.length === 0) {    // New USER
-        const newUser = await db.query("INSERT INTO users (google_id, email, name, access_token) VALUES ($1, $2, $3, $4) RETURNING *", 
-          [userId, userEmail, userFullName, accessToken]
+        const newUser = await db.query("INSERT INTO users (google_id, email, name) VALUES ($1, $2, $3) RETURNING *", 
+          [userId, userEmail, userFullName]
         );
         user = newUser.rows[0];
 
       } else {   // Existing USER
         user = result.rows[0];
       }
-      user.accessToken = accessToken;
+      user.accessToken = accessToken; 
 
-      // This tells Passport: “Here’s the logged-in user. Save them to the session.”
-      return cb(null, user);
+      return cb(null, user); // This tells Passport: “Here’s the logged-in user. Save them to the session.”
     } catch (err) {
       return cb(err);
     }

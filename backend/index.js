@@ -65,15 +65,15 @@ app.get("/api/gmail", async (req, res) => {
   try {
     // userId: "me" means “use the currently authenticated user.”
     const result = await gmail.users.messages.list({ userId: "me", maxResults: 5 }); // users.messages.list is a Gmail API function.
-    // console.log(result.data);
+    
     let unsubLinks = []
+    let senders = []
 
     for (let message of result.data.messages) {
       const actualEmail = await gmail.users.messages.get({ userId: "me", id: message.id }); 
-      // console.log(actualEmail.data)
       
       const headers = actualEmail.data.payload.headers;
-      console.log(headers)
+      // console.log(headers)
       
       let fromHeader;
       for (let i = 0; i < headers.length; i++) {
@@ -85,29 +85,48 @@ app.get("/api/gmail", async (req, res) => {
       }
       const sender = fromHeader ? fromHeader.value : "Unknown sender";
       console.log("Sender:", sender);
-      //decoded string must use "payload.parts" if it is a multipart/alternative email because the payload comes in multiple parts
+
       let decodedString;
-      if (actualEmail.data.payload.mimeType == "text/html"){
-        decodedString = Buffer.from(actualEmail.data.payload.body.data, 'base64').toString('utf-8');
-      } else {  // handles multipart/alternative
-        decodedString = Buffer.from(actualEmail.data.payload.parts[1].body.data, 'base64').toString('utf-8');
+      let payload = actualEmail.data.payload
+      if (payload.mimeType == "text/html"){
+        decodedString = Buffer.from(payload.body.data, 'base64').toString('utf-8');
+      } else if (payload.mimeType == "multipart/alternative" || payload.mimeType == "multipart/mixed") {  // handles multipart/alternative or mixed
+        var parts = payload.parts
+
+        while (parts.length) {
+          //shift removes the first element of an array and returns it
+          var part = parts.shift()
+          if (part.parts) {
+            parts = parts.concat(part.parts)
+          } else if (part.mimeType === 'text/html') {
+            decodedString = Buffer.from(part.body.data, 'base64').toString('utf-8')
+            break
+          }
+
+        }
+      } else {
+        console.log(payload.mimeType)
       }
-      // console.log(decodedString)
-      const $ = cheerio.load(decodedString);
-      const allLinks = $('a');
-      const linkArray = allLinks.toArray();
+      
+      
+      if (decodedString) {
+        const $ = cheerio.load(decodedString);
+        const allLinks = $('a');
+        const linkArray = allLinks.toArray();
 
-      for (let i = 0; i < linkArray.length; i++) {
-        const linkElement = linkArray[i];
-        // console.log(linkElement);
-        const linkText = $(linkElement).text().toLowerCase();   
+        for (let i = 0; i < linkArray.length; i++) {
+          const linkElement = linkArray[i];
+          const linkText = $(linkElement).text().toLowerCase();   
 
-        if (linkText.includes("unsubscribe")) {
-          unsubLinks.push(linkElement.attribs.href);
+          if (linkText.includes("unsubscribe")) {
+            unsubLinks.push(linkElement.attribs.href);
+            senders.push(sender)
+          }
         }
       }
     }
     // console.log(unsubLinks);
+    console.log(senders)
     res.json(result.data);
 
   } catch (err) {

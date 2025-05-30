@@ -139,7 +139,7 @@ app.post('/logout', function(req, res, next) {  // copied directly from doc.
     if (err) { return next(err); }
     req.session.destroy(() => {
       res.clearCookie('connect.sid'); // name of the session cookie by default
-      res.redirect('/');
+      res.status(200).json({ message: 'Logged out successfully' }); 
     });
   });
 });

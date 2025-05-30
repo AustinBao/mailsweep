@@ -25,7 +25,7 @@ const Home = () => {
 
   async function HandleLogoutButton() {
     try {
-      await axios.post("http://localhost:3001/logout", { withCredentials: true });
+      await axios.post("http://localhost:3001/logout", {}, { withCredentials: true });
       console.log("User logged out");
       navigate('/'); 
     } catch(error) {

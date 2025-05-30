@@ -108,11 +108,25 @@ app.get('/auth/google/home', async (request, response) => {
     })
 })
 
-app.get('/api/subscriptions', async (request, response) => {
-  const result = await db.query('SELECT * FROM users');
-  const subscriptions = result.rows;
-  response.json(subscriptions);
-})
+app.get('/api/subscriptions', async (req, res) => {
+  if (!req.isAuthenticated()) {
+    return res.status(401).send("Not authenticated");
+  }
+
+  const userId = req.user.id;
+
+  try {
+    const result = await db.query(
+      'SELECT * FROM subscriptions WHERE user_id = $1',
+      [userId]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching subscriptions:', err);
+    res.status(500).send('Error retrieving subscriptions');
+  }
+});
+
 
 app.get('/api/check-auth', (req, res) => { 
   if (req.isAuthenticated()) {
@@ -132,7 +146,6 @@ app.get("/auth/google/callback", passport.authenticate("google", {
   successRedirect: "http://localhost:5173/home",       
   failureRedirect: "http://localhost:5173/login",
 }));
-
 
 app.post('/logout', function(req, res, next) {  // copied directly from doc. 
   req.logout(function(err) { // will remove the req.user (wipes the entire session) 

@@ -13,7 +13,6 @@ async function processMessage(gmail, messageId) {
   }
   const unsubLink = decodeString(decodedString); 
   const sender = unsubLink ? findSender(payload.headers) : null;
-  console.log(sender)
 
   return unsubLink ? { unsubLink, sender } : null;
 }

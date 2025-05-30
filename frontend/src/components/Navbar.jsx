@@ -1,16 +1,19 @@
 import react from "react"
 import { useNavigate } from 'react-router-dom';
+import axios from "axios";
 
 const Navbar = ({ isLoggedIn }) => {
 
     const navigate = useNavigate();
 
     //modularise handleLoginClick and handleLogoutClick then onClick function has conditional to determine what onclick function is passed?
-    const handleLoginClick = () => {
+    const handleLoginClick = async () => {
         if (!isLoggedIn) {
             navigate("/login"); 
         } else if (isLoggedIn) {
-            //add in logic to actually log user out as well, modularise this function
+            // modularise this function
+            await axios.post("http://localhost:3001/logout", {}, { withCredentials: true });
+            console.log("User logged out");
             navigate("/")
         }
     };

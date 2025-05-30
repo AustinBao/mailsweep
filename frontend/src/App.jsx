@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react"
 import Navbar from "./components/Navbar";
 import CenterScreenshot from "./components/CenterScreenshot";
 import Features from "./components/Features";

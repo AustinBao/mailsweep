@@ -1,12 +1,18 @@
 import react from "react"
 import { useNavigate } from 'react-router-dom';
 
-const Navbar = () => {
+const Navbar = ({ isLoggedIn }) => {
 
     const navigate = useNavigate();
 
+    //modularise handleLoginClick and handleLogoutClick then onClick function has conditional to determine what onclick function is passed?
     const handleLoginClick = () => {
-        navigate("/login"); 
+        if (!isLoggedIn) {
+            navigate("/login"); 
+        } else if (isLoggedIn) {
+            //add in logic to actually log user out as well, modularise this function
+            navigate("/")
+        }
     };
 
     return (
@@ -30,7 +36,7 @@ const Navbar = () => {
                             <li><a href="#" className="nav-link px-2">FAQs</a></li> 
                             <li><a href="#" className="nav-link px-2">About</a></li> 
                         </ul> <div className="col-md-3 text-end"> 
-                    <button type="button" onClick={handleLoginClick} className="btn btn-primary">Login</button> 
+                    <button type="button" onClick={handleLoginClick} className="btn btn-primary">{isLoggedIn ? "Logout": "Login"}</button> 
                 </div> 
             </header> 
         </div>

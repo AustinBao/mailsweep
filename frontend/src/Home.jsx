@@ -2,6 +2,8 @@ import { useEffect, useState } from "react"
 import emailServices from './services/email'
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import Navbar from "./components/Navbar";
+import Card from "./components/Card";
 
 const Home = () => {
   const [mail, setMail] = useState([])
@@ -11,7 +13,7 @@ const Home = () => {
     axios.get("http://localhost:3001/api/check-auth", { withCredentials: true })
     .then(res => {
       console.log("User is authenticated");
-      return axios.get("http://localhost:3001/api/gmail", { withCredentials: true });
+      return axios.get("http://localhost:3001/api/subscriptions", { withCredentials: true });
     })
     .then(res => {
       setMail(res.data);
@@ -35,13 +37,13 @@ const Home = () => {
 
   return (
     <div>
-      <h1>Welcome to the home page!</h1>
+      <Navbar isLoggedIn={true}/>
       
-      <button onClick={HandleLogoutButton}>Logout</button>
+      {/* <button onClick={HandleLogoutButton}>Logout</button> */}
 
-      <div>
-        {mail.messages?.map((msg, index) => (
-          <p key={index}>Message ID: {msg.id}</p>
+      <div style={{marginLeft: "15%", marginRight: "15%"}}>
+        {mail.map((i) => (
+          <Card key={i.id} sender={i.sender_address} link={i.unsubscribe_link} /> 
         ))}
       </div>  
 

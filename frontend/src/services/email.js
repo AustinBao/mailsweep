@@ -7,8 +7,8 @@ const axiosInstance = axios.create({
   withCredentials: true  // needed for gmail api auth. sends cookie back
 })
 
-const getAllUsers = () => {
-  const request = axiosInstance.get(baseURL + "/api/subscriptions")
+const getAllSubscriptions = () => {
+  const request = axiosInstance.get("/api/subscriptions")
   return request.then(response => response.data)
 }
 
@@ -18,6 +18,6 @@ const getMail = () => {
 }
 
 export default {
-  getAllUsers,
+  getAllSubscriptions,
   getMail
 }

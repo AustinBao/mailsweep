@@ -1,9 +1,14 @@
 import axios from 'axios';
 
-const Card = ({ sender, sender_address, link }) => {
+const Card = ({ id, sender, sender_address, link }) => {
 
     async function handleUnsubClick () {
-        await axios.post("http://localhost:3001/unsub", {id: id}, { withCredentials: true })
+        try{ 
+            const result = await axios.post("http://localhost:3001/unsub", {email_id: id}, { withCredentials: true })
+            console.log(result)
+        } catch (err) {
+            console.log("Error with unsubscribing" + err);
+        }
     }
 
     return (

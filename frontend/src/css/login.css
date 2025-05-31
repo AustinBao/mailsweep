@@ -1,0 +1,34 @@
+/* https://css-pattern.com/cubes-illusion/ */
+.login-bkg {   
+  --s: 300px;
+  --c1: #bdbcbc;
+  --c2: #dbdbdb;
+  --c3: #b0b0b0;
+
+  background:
+    repeating-conic-gradient(from 30deg, #0000 0 120deg, var(--c3) 0 50%) 
+      calc(var(--s)/2) calc(var(--s)*tan(30deg)/2),
+    repeating-conic-gradient(from 30deg, var(--c1) 0 60deg, var(--c2) 0 120deg, var(--c3) 0 50%);
+  background-size: var(--s) calc(var(--s)*tan(30deg));
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* spotlight effect */
+.login-bkg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(29, 29, 30, 0.6) 0%, rgba(255, 255, 255, 0) 75%);
+  z-index: 0;
+}
+
+.login-card {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}

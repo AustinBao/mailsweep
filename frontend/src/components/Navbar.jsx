@@ -1,8 +1,7 @@
-import react from "react"
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 
-const Navbar = ({ isLoggedIn }) => {
+const Navbar = ({ isLoggedIn, profilePic }) => {
 
     const navigate = useNavigate();
 
@@ -38,8 +37,15 @@ const Navbar = ({ isLoggedIn }) => {
                             <li><a href="#" className="nav-link px-2">Pricing</a></li> 
                             <li><a href="#" className="nav-link px-2">FAQs</a></li> 
                             <li><a href="#" className="nav-link px-2">About</a></li> 
-                        </ul> <div className="col-md-3 text-end"> 
-                    <button type="button" onClick={handleLoginClick} className="btn btn-primary">{isLoggedIn ? "Logout": "Login"}</button> 
+                        </ul> 
+                    <div className="col-md-3 text-end"> 
+
+                    <div className="col-md-3 text-end d-flex align-items-center justify-content-end gap-3">
+                        {profilePic && (
+                            <img src={profilePic} alt="Profile" style={{ width: "40px", borderRadius: "50%" }}/>
+                        )}
+                        <button type="button" onClick={handleLoginClick} className="btn btn-primary">{isLoggedIn ? "Logout": "Login"}</button> 
+                    </div> 
                 </div> 
             </header> 
         </div>

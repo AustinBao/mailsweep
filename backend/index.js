@@ -79,18 +79,26 @@ app.get("/api/gmail", async (req, res) => {
 
     let unsubLinks = []
     let senders = []
+    let sender_addresses = []
+    let email_ids = []
 
     for (let message of result.data.messages) {
       const data = await processMessage(gmail, message.id)
       if (data) {
+        let indexOfSenderAdress = data.sender.indexOf("<")
+        let sender = data.sender.slice(0, indexOfSenderAdress)
+        let sender_address = data.sender.slice(indexOfSenderAdress)
+
         unsubLinks.push(data.unsubLink)
-        senders.push(data.sender)
+        senders.push(sender)
+        sender_addresses.push(sender_address)
+        email_ids.push(message.id)
       } 
     }
 
-    // console.log(unsubLinks, senders)
+    // console.log(unsubLinks, senders, email_ids)
     for (let i = 0; i < senders.length; i++) {
-      saveSubscriptionsToDB(userId, senders[i], unsubLinks[i]);
+      saveSubscriptionsToDB(userId, senders[i], sender_addresses[i], unsubLinks[i], email_ids[i]);
     }
 
     res.json(result.data);
@@ -99,14 +107,14 @@ app.get("/api/gmail", async (req, res) => {
     console.error(err);
     res.status(500).send("Failed to fetch Gmail data");
   }
-});
+}); 
 
-async function saveSubscriptionsToDB (userId, sender, unsubLink) {
+async function saveSubscriptionsToDB (userId, sender, sender_address, unsubLink, email_id) {
   await db.query(`INSERT INTO subscriptions 
-    (user_id, sender_address, subject, unsubscribe_link, is_unsubscribed, unsubscribed_at) 
-    VALUES ($1, $2, $3, $4, $5, $6) 
+    (user_id, email_id, sender, sender_address, subject, unsubscribe_link, is_unsubscribed, unsubscribed_at) 
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
     ON CONFLICT (user_id, sender_address) DO NOTHING`, // will stop the error from being triggered if (user_id, sender_address) pair already exists.
-    [userId, sender, null, unsubLink, false, null]
+    [userId, email_id, sender, sender_address, null, unsubLink, false, null]
   );
 }
 
@@ -165,6 +173,16 @@ app.post('/logout', function(req, res, next) {  // copied directly from doc.
     });
   });
 });
+
+
+// app.post('/unsub', async (req, res) => { 
+//   await db.query(`UPDATE subscriptions 
+//     SET email = 'newemail@example.com' 
+//     WHERE id = $1`, [req.user.id], 
+//     [userId, userEmail, userFullName, userProfilePic]
+//   );
+// });
+
 
 passport.use("google", new GoogleStrategy({  // GoogleStrategy is a Passport strategy that handles Google login for you
   clientID: process.env.GOOGLE_CLIENT_ID, //  from your Google Developer Console 

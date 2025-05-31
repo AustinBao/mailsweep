@@ -1,11 +1,24 @@
-const Card = ({ sender, link }) => {
+import axios from 'axios';
+
+const Card = ({ sender, sender_address, link }) => {
+
+    async function handleUnsubClick () {
+        await axios.post("http://localhost:3001/unsub", {id: id}, { withCredentials: true })
+    }
+
     return (
        <div className="card border-dark mb-3" style={{maxWidth: "18 rem"}}>
-        <div className="card-header p-3" >{sender}</div>
+        <div className="card-header d-flex justify-content-between p-3" >
+            <h5>{sender}</h5>
+            <span>{sender_address}</span> 
+        </div>
         <div className="card-body">
             <h5 className="card-title">Dark card title</h5>
             <p className="card-text">Some quick example text to build on the card title and make up the bulk of the card’s content.</p>
-            <h4><a href={link}>Unsubscribe</a></h4>
+            <div className="d-flex gap-4">
+                <h4><a target="_blank" href={link} onClick={handleUnsubClick}>Unsubscribe</a></h4>
+                {/* <h4><a target="_blank" style={{ color: "red" }} href={link}>Clear Inbox</a></h4> */}
+            </div>
         </div>
         </div> 
     )

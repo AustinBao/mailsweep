@@ -14,13 +14,9 @@ const Home = () => {
     axios.get("http://localhost:3001/api/check-auth", { withCredentials: true })
     .then(() => axios.get("http://localhost:3001/api/gmail", { withCredentials: true }))
     .then(() => axios.get("http://localhost:3001/api/subscriptions", { withCredentials: true }))
-    .then(res => {setMail(res.data),
-      console.log(res.data)})
+    .then(res => setMail(res.data))
     .then(() => axios.get("http://localhost:3001/api/people", { withCredentials: true }))
-    .then(res => { 
-      setProfilePic(res.data),
-      console.log(res.data)
-    })
+    .then(res => setProfilePic(res.data))
     .catch(err => {
       console.error("Not authenticated", err);
       navigate("/login");

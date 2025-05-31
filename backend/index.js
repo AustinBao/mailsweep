@@ -52,6 +52,14 @@ app.get('/', async (request, response) => {
 })
 
 
+app.get("/api/people", async (req, res) => {
+  if (!req.isAuthenticated()) { 
+    return res.status(401).send("Not authenticated");
+  }
+  res.json(req.user.profile_pic);
+});
+
+
 app.get("/api/gmail", async (req, res) => {
   // req.isAuthenticated() is from Passport. Passport adds this new method to the req object.
   if (!req.isAuthenticated()) { 
@@ -67,8 +75,8 @@ app.get("/api/gmail", async (req, res) => {
 
   try {
     // userId: "me" means “use the currently authenticated user.”
-    const result = await gmail.users.messages.list({ userId: "me", maxResults: 6 }); // users.messages.list is a Gmail API function.
-    
+    const result = await gmail.users.messages.list({ userId: "me", maxResults: 5 }); // users.messages.list is a Gmail API function.
+
     let unsubLinks = []
     let senders = []
 
@@ -80,10 +88,11 @@ app.get("/api/gmail", async (req, res) => {
       } 
     }
 
-    // console.log(unsubLinks, senders)
+    console.log(unsubLinks, senders)
     for (let i = 0; i < senders.length; i++) {
       saveSubscriptionsToDB(userId, senders[i], unsubLinks[i]);
     }
+
     res.json(result.data);
 
   } catch (err) {
@@ -94,10 +103,10 @@ app.get("/api/gmail", async (req, res) => {
 
 async function saveSubscriptionsToDB (userId, sender, unsubLink) {
   await db.query(`INSERT INTO subscriptions 
-    (user_id, sender_address, subject, unsubscribe_link, resubscribe_link, is_unsubscribed, unsubscribed_at) 
-    VALUES ($1, $2, $3, $4, $5, $6, $7) 
+    (user_id, sender_address, subject, unsubscribe_link, is_unsubscribed, unsubscribed_at) 
+    VALUES ($1, $2, $3, $4, $5, $6) 
     ON CONFLICT (user_id, sender_address) DO NOTHING`, // will stop the error from being triggered if (user_id, sender_address) pair already exists.
-    [userId, sender, null, unsubLink, null, false, null]
+    [userId, sender, null, unsubLink, false, null]
   );
 }
 
@@ -171,12 +180,14 @@ passport.use("google", new GoogleStrategy({  // GoogleStrategy is a Passport str
       const userFullName = profile.given_name + " " + profile.family_name;
       const userEmail = profile.email;
       const userId = profile.id;
+      const userProfilePic = profile.photos[0].value;
+
       const result = await db.query("SELECT * FROM users WHERE email = $1", [userEmail]);
       let user;
       
       if (result.rows.length === 0) {    // New USER
-        const newUser = await db.query("INSERT INTO users (google_id, email, name) VALUES ($1, $2, $3) RETURNING *", 
-          [userId, userEmail, userFullName]
+        const newUser = await db.query("INSERT INTO users (google_id, email, name, profile_pic) VALUES ($1, $2, $3, $4) RETURNING *", 
+          [userId, userEmail, userFullName, userProfilePic]
         );
         user = newUser.rows[0];
 

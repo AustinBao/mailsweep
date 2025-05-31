@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const Card = ({ sender, sender_address, link }) => {
+const Card = ({ sender, sender_address, link, image }) => {
 
     async function handleUnsubClick () {
         await axios.post("http://localhost:3001/unsub", {id: id}, { withCredentials: true })
@@ -9,6 +9,11 @@ const Card = ({ sender, sender_address, link }) => {
     return (
        <div className="card border-dark mb-3" style={{maxWidth: "18 rem"}}>
         <div className="card-header d-flex justify-content-between p-3" >
+            <img
+                src={image}
+                alt="favicon"
+                style={{ width: "24px", height: "24px", marginRight: "10px" }}
+            />
             <h5>{sender}</h5>
             <span>{sender_address}</span> 
         </div>
@@ -25,3 +30,4 @@ const Card = ({ sender, sender_address, link }) => {
 }
 
 export default Card
+

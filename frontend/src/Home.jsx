@@ -27,10 +27,11 @@ const Home = () => {
   return (
     <div>
       <Navbar isLoggedIn={true} profilePic={profilePic}/>
-      
+  
       <div style={{marginLeft: "15%", marginRight: "15%"}}>
-        {mail.map((i) => (
-          <Card key={i.id} sender={i.sender} sender_address={i.sender_address} link={i.unsubscribe_link}/> 
+        <button className="btn btn-primary">hello</button>
+        {mail.map((i, index) => (
+          <Card key={index} sender={i.sender} sender_address={i.sender_address} link={i.unsubscribe_link} image={i.domain_pic} /> 
         ))}
       </div>  
 

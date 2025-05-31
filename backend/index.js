@@ -13,6 +13,8 @@ const app = express()
 const PORT = 3001
 env.config();
 
+app.use(express.json());
+
 app.use(cors({
   origin: 'http://localhost:5173', 
   credentials: true  // tells the server to allow cookies from frontend
@@ -173,7 +175,6 @@ app.get('/api/subscriptions', async (req, res) => {
   }
 
   const userId = req.user.id;
-
   try {
     // const result = await db.query(
     //   'SELECT * FROM subscriptions WHERE user_id = $1',
@@ -221,13 +222,13 @@ app.post('/logout', function(req, res, next) {  // copied directly from doc.
 });
 
 
-// app.post('/unsub', async (req, res) => { 
-//   await db.query(`UPDATE subscriptions 
-//     SET email = 'newemail@example.com' 
-//     WHERE id = $1`, [req.user.id], 
-//     [userId, userEmail, userFullName, userProfilePic]
-//   );
-// });
+app.post('/unsub', async (req, res) => { 
+  const email_id = req.body.email_id;
+  await db.query(`UPDATE subscriptions SET is_unsubscribed = $1 WHERE id = $2`, 
+    [true, email_id]
+  );
+  res.status(200).json("Successfully updated is_unsubscribed")
+});
 
 
 passport.use("google", new GoogleStrategy({  // GoogleStrategy is a Passport strategy that handles Google login for you

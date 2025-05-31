@@ -31,7 +31,7 @@ const Home = () => {
       <div style={{marginLeft: "15%", marginRight: "15%"}}>
         <button className="btn btn-primary">hello</button>
         {mail.map((i, index) => (
-          <Card key={index} sender={i.sender} sender_address={i.sender_address} link={i.unsubscribe_link} image={i.domain_pic} /> 
+          <Card key={index} id={i.id} sender={i.sender} sender_address={i.sender_address} link={i.unsubscribe_link} image={i.domain_pic} /> 
         ))}
       </div>  
 

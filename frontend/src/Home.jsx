@@ -21,7 +21,7 @@ const Home = () => {
       console.error("Not authenticated", err);
       navigate("/login");
     });
-}, []);
+}, []); 
 
 
   return (

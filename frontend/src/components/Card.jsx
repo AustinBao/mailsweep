@@ -14,12 +14,14 @@ const Card = ({ id, sender, sender_address, link, image }) => {
     return (
        <div className="card border-dark mb-3" style={{maxWidth: "18 rem"}}>
         <div className="card-header d-flex justify-content-between p-3" >
-            <img
-                src={image}
-                alt="favicon"
-                style={{ width: "24px", height: "24px", marginRight: "10px" }}
-            />
-            <h5>{sender}</h5>
+            <div className='d-flex align-items-center gap-2'>
+                <img
+                    src={image}
+                    alt="favicon"
+                    style={{ width: "30px", height: "30px", marginRight: "10px" }}
+                />
+                <h5 className="mb-0">{sender}</h5>
+            </div>
             <span>{sender_address}</span> 
         </div>
         <div className="card-body">

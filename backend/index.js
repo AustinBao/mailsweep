@@ -60,6 +60,7 @@ app.get("/api/people", async (req, res) => {
 });
 
 
+let currentPageToken = null;
 app.get("/api/gmail", async (req, res) => {
   // req.isAuthenticated() is from Passport. Passport adds this new method to the req object.
   if (!req.isAuthenticated()) { 
@@ -75,22 +76,46 @@ app.get("/api/gmail", async (req, res) => {
 
   try {
     // userId: "me" means “use the currently authenticated user.”
-    const result = await gmail.users.messages.list({ userId: "me", maxResults: 5 }); // users.messages.list is a Gmail API function.
+
+    // const result = await gmail.users.messages.list({ userId: "me", maxResults: 5, pageToken: pageToken }); // users.messages.list is a Gmail API function.
+    const result = await gmail.users.messages.list({
+      userId: "me",
+      maxResults: 5,
+      pageToken: currentPageToken,
+    })
+
+    currentPageToken = result.data.nextPageToken
 
     let unsubLinks = []
     let senders = []
+    let sender_addresses = []
 
     for (let message of result.data.messages) {
       const data = await processMessage(gmail, message.id)
       if (data) {
+        let indexOfSenderAdress = data.sender.indexOf("<")
+        let sender = data.sender.slice(0, indexOfSenderAdress)
+        let sender_address = data.sender.slice(indexOfSenderAdress)
+
         unsubLinks.push(data.unsubLink)
-        senders.push(data.sender)
+        senders.push(sender)
+        sender_addresses.push(sender_address)
       } 
     }
 
     // console.log(unsubLinks, senders)
     for (let i = 0; i < senders.length; i++) {
-      saveSubscriptionsToDB(userId, senders[i], unsubLinks[i]);
+      // saveSubscriptionsToDB(userId, senders[i], unsubLinks[i]);
+      let entry = {}
+      entry.user_id = userId
+      entry.sender = senders[i]
+      entry.sender_address = sender_addresses[i]
+      entry.unsubscribe_link = unsubLinks[i]
+      entry.domain_pic = getFaviconURL(sender_addresses[i])
+
+
+      tempDB.push(entry)
+
     }
 
     res.json(result.data);
@@ -100,6 +125,29 @@ app.get("/api/gmail", async (req, res) => {
     res.status(500).send("Failed to fetch Gmail data");
   }
 });
+
+function getRootDomain(domain) {
+  const parts = domain.split('.');
+  return parts.slice(-2).join('.');
+}
+
+function getFaviconURL(rawEmail) {
+  // Remove angle brackets if they exist
+  const email = rawEmail.replace(/[<>]/g, "").trim();
+  const rawDomain = email.split('@')[1];
+  const domain = getRootDomain(rawDomain)
+  return `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
+}
+
+let tempDB = [
+  {
+    'user_id': '6',
+    'sender': 'Notion Team',
+    'sender_address': '<team@mail.notion.so> BOB',
+    'unsubscribe_link': 'https://e.customeriomail.com/manage_subscription_preferences/dgTv2AUJAIfDtymGw7cpAZcnJZianPhoWZ9VxZUn_g==',
+    'domain_pic': 'https://www.google.com/s2/favicons?domain=mail.notion.so&sz=128'
+  }
+]
 
 async function saveSubscriptionsToDB (userId, sender, unsubLink) {
   await db.query(`INSERT INTO subscriptions 
@@ -125,11 +173,15 @@ app.get('/api/subscriptions', async (req, res) => {
   const userId = req.user.id;
 
   try {
-    const result = await db.query(
-      'SELECT * FROM subscriptions WHERE user_id = $1',
-      [userId]
-    );
-    res.json(result.rows);
+    // const result = await db.query(
+    //   'SELECT * FROM subscriptions WHERE user_id = $1',
+    //   [userId]
+    // );
+    // res.json(result.rows);
+
+    console.log(tempDB.length)
+
+    res.json(tempDB)
   } catch (err) {
     console.error('Error fetching subscriptions:', err);
     res.status(500).send('Error retrieving subscriptions');

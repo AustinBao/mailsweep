@@ -21,7 +21,7 @@ const Home = () => {
       console.error("Not authenticated", err);
       navigate("/login");
     });
-}, []);
+}, []); 
 
 
   return (
@@ -30,7 +30,7 @@ const Home = () => {
       
       <div style={{marginLeft: "15%", marginRight: "15%"}}>
         {mail.map((i) => (
-          <Card key={i.id} sender={i.sender_address} link={i.unsubscribe_link} /> 
+          <Card key={i.id} sender={i.sender} sender_address={i.sender_address} link={i.unsubscribe_link}/> 
         ))}
       </div>  
 

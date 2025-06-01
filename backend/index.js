@@ -112,6 +112,7 @@ app.get("/api/gmail", async (req, res) => {
       let entry = {}
       entry.user_id = userId
       entry.sender = senders[i]
+      console.log(senders[i] + "     " + sender_addresses[i])
       entry.sender_address = sender_addresses[i]
       entry.unsubscribe_link = unsubLinks[i]
       entry.domain_pic = getFaviconURL(sender_addresses[i])
@@ -132,7 +133,7 @@ app.get("/api/gmail", async (req, res) => {
 
 function getRootDomain(domain) {
   const parts = domain.split('.');
-  return parts.slice(-2).join('.');
+  return parts.slice(-2).join('.'); 
 }
 
 function getFaviconURL(rawEmail) {
@@ -149,7 +150,7 @@ let tempDB = [
     'sender': 'Notion Team',
     'sender_address': '<team@mail.notion.so> BOB',
     'unsubscribe_link': 'https://e.customeriomail.com/manage_subscription_preferences/dgTv2AUJAIfDtymGw7cpAZcnJZianPhoWZ9VxZUn_g==',
-    'domain_pic': 'https://www.google.com/s2/favicons?domain=mail.notion.so&sz=128'
+    'domain_pic': 'https://www.google.com/s2/favicons?domain=focusrite.com&sz=128'
   }
 ]
 

@@ -3,7 +3,7 @@ function findHTML(payload) {
     if (payload.mimeType == "text/html"){
     decodedString = Buffer.from(payload.body.data, 'base64').toString('utf-8');
     return decodedString
-    } else if (payload.mimeType == "multipart/alternative" || payload.mimeType == "multipart/mixed") {  // handles multipart/alternative or mixed
+    } else if (payload.mimeType == "multipart/alternative" || payload.mimeType == "multipart/mixed" || payload.mimeType == 'multipart/report') {  // handles multipart/alternative or mixed
     var parts = payload.parts
 
     while (parts.length) {

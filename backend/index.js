@@ -36,6 +36,31 @@ const db = new pg.Client({
 });
 db.connect();
 
+async function savePageToken(userId, token) {
+  try {
+    await db.query(
+      `UPDATE users SET page_token = $1 WHERE id = $2`,
+      [token, userId]
+    );
+    
+  } catch (err) {
+    console.error("Cant save page token: ", err);
+  }
+}
+
+async function getPageToken(userId) {
+  try {
+    const result = await db.query(
+      `SELECT page_token FROM users WHERE id = $1`,
+      [userId]
+    );
+    return result.rows[0].page_token;
+
+  } catch (err) {
+    console.error("Cant get page token: ", err);
+    return null;
+  }
+}
 
 passport.serializeUser((user, cb) => {
   cb(null, user);  // stores the user object in session upon login
@@ -62,7 +87,7 @@ app.get("/api/people", async (req, res) => {
 });
 
 
-let currentPageToken = null;
+// let currentPageToken = null;
 app.get("/api/gmail", async (req, res) => {
   // req.isAuthenticated() is from Passport. Passport adds this new method to the req object.
   if (!req.isAuthenticated()) { 
@@ -77,19 +102,24 @@ app.get("/api/gmail", async (req, res) => {
   // You’re telling Google: "I want to use Gmail API version 1." auth is your authorized client. Now you can call Gmail API methods.
 
   try {
+    const currentPageToken = await getPageToken(userId);
+
     const result = await gmail.users.messages.list({
       userId: "me",  // userId: "me" means “use the currently authenticated user.”
-      labelIds: ['INBOX'],
+      labelIds: ['INBOX'], // look only in inbox
       maxResults: 10,
       pageToken: currentPageToken,
     })
 
-    if (!result.data.messages || result.data.messages.length === 0) {
-      currentPageToken = null;
+    if (!result.data.messages || result.data.messages.length === 0) {  // when we reach the end of the inbox
+      await savePageToken(userId, null);  // clear page_token in db if no more emails
       return res.status(200).json({ done: true, messages: [] });
     }
 
-    currentPageToken = result.data.nextPageToken
+    const nextToken  = result.data.nextPageToken
+    if (nextToken ) {
+      await savePageToken(userId, nextToken ); // save the new page token to page_token
+    }
 
     let unsubLinks = []
     let senders = []
@@ -128,14 +158,13 @@ app.get("/api/gmail", async (req, res) => {
       entry.unsubscribe_link = unsubLinks[i]
       entry.domain_pic = getFaviconURL(sender_addresses[i])
 
-
       tempDB.push(entry)
 
       // saveSubscriptionsToDB(userId, senders[i], sender_addresses[i], unsubLinks[i], email_ids[i]);
     }
 
     // res.json(result.data);
-    res.status(200).json({ done: !currentPageToken, messages: result.data.messages });
+    res.status(200).json({ done: !nextToken, messages: result.data.messages });
 
   } catch (err) {
     console.error(err);

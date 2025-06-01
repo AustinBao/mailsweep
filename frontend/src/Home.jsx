@@ -28,7 +28,7 @@ const Home = () => {
     setMail(prev =>
       prev.map(m => {
         if (m.id === emailId) {
-          return { ...m, is_unsubscribed: true };
+          return { ...m, is_unsubscribed: true };   // ...m means everything the same as prev array
         } else {
           return m;
         }
@@ -42,7 +42,7 @@ const Home = () => {
 
     if (aStartsWith && !bStartsWith) return -1;
     if (!aStartsWith && bStartsWith) return 1;
-    return 0; // keep original order if both or neither match
+    return 0;
   });
 
   return (

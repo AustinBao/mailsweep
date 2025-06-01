@@ -23,6 +23,17 @@ const Home = () => {
     });
 }, []); 
 
+  function handleOnSubscribe (emailId) {
+    setMail(prev =>
+      prev.map(m => {
+        if (m.id === emailId) {
+          return { ...m, is_unsubscribed: true };
+        } else {
+          return m;
+        }
+      })
+    );
+  }
 
   return (
     <div>
@@ -31,11 +42,17 @@ const Home = () => {
       <div style={{marginLeft: "15%", marginRight: "15%"}}>
         <button className="btn btn-primary">hello</button>
         {mail.map((i, index) => (
-          <Card key={index} id={i.id} sender={i.sender} sender_address={i.sender_address} link={i.unsubscribe_link} image={i.domain_pic} /> 
+          <Card 
+            key={index} 
+            id={i.id} 
+            sender={i.sender} 
+            sender_address={i.sender_address} 
+            link={i.unsubscribe_link} 
+            image={i.domain_pic}
+            isUnsubscribed={i.is_unsubscribed}
+            onUnsubscribe={handleOnSubscribe} /> 
         ))}
       </div>  
-
-      
     </div>
   )
 }

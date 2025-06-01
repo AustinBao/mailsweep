@@ -135,7 +135,7 @@ app.get("/api/gmail", async (req, res) => {
 
         if (rawSender.includes("<")) {
           let indexOfSenderAddress = rawSender.indexOf("<");
-          sender = rawSender.slice(0, indexOfSenderAddress).trim();
+          sender = rawSender.slice(0, indexOfSenderAddress).trim().replace(/^"+|"+$/g, '');  // removes surrounding quotes
           sender_address = rawSender.slice(indexOfSenderAddress)
         } else {
           sender = ""; // or rawSender if you want to treat this as the sender name

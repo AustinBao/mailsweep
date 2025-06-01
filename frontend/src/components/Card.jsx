@@ -32,7 +32,7 @@ const Card = ({ id, sender, sender_address, link, image, isUnsubscribed, onUnsub
                         display: "inline-block",
                         }}
                     ></span>
-                    <h7 className="mb-0">{isUnsubscribed ? "Unsubscribed" : "Active Subscription"}</h7>
+                    <p className="mb-0">{isUnsubscribed ? "Unsubscribed" : "Active Subscription"}</p>
                 </div>
             </div>
             <span>{sender_address}</span> 

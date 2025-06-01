@@ -7,6 +7,7 @@ import Card from "./components/Card";
 const Home = () => {
   const [mail, setMail] = useState([])
   const [profilePic, setProfilePic] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const navigate = useNavigate()
 
@@ -35,13 +36,22 @@ const Home = () => {
     );
   }
 
+  const filteredAndSortedMail = [...mail].sort((a, b) => {
+    const aStartsWith = a.sender.toLowerCase().startsWith(searchTerm.toLowerCase());
+    const bStartsWith = b.sender.toLowerCase().startsWith(searchTerm.toLowerCase());
+
+    if (aStartsWith && !bStartsWith) return -1;
+    if (!aStartsWith && bStartsWith) return 1;
+    return 0; // keep original order if both or neither match
+  });
+
   return (
     <div>
-      <Navbar isLoggedIn={true} profilePic={profilePic}/>
+      <Navbar isLoggedIn={true} profilePic={profilePic} searchTerm={searchTerm} setSearchTerm={setSearchTerm}/>
   
       <div style={{marginLeft: "15%", marginRight: "15%"}}>
-        <button className="btn btn-primary">hello</button>
-        {mail.map((i, index) => (
+        {/* <button className="btn btn-primary">hello</button> */}
+        {filteredAndSortedMail.map((i, index) => (
           <Card 
             key={index} 
             id={i.id} 

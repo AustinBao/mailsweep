@@ -1,11 +1,11 @@
 import axios from 'axios';
 
-const Card = ({ id, sender, sender_address, link, image }) => {
+const Card = ({ id, sender, sender_address, link, image, isUnsubscribed, onUnsubscribe }) => {
 
     async function handleUnsubClick () {
         try{ 
-            const result = await axios.post("http://localhost:3001/unsub", {email_id: id}, { withCredentials: true })
-            console.log(result)
+            await axios.post("http://localhost:3001/unsub", {email_id: id}, { withCredentials: true })
+            onUnsubscribe(id);
         } catch (err) {
             console.log("Error with unsubscribing" + err);
         }
@@ -21,6 +21,19 @@ const Card = ({ id, sender, sender_address, link, image }) => {
                     style={{ width: "30px", height: "30px", marginRight: "10px" }}
                 />
                 <h5 className="mb-0">{sender}</h5>
+                <div className="d-flex align-items-center gap-2">
+                    <span
+                        style={{
+                        width: "10px",
+                        height: "10px",
+                        borderRadius: "50%",
+                        marginLeft: "40px",
+                        backgroundColor: isUnsubscribed ? "red" : "green",
+                        display: "inline-block",
+                        }}
+                    ></span>
+                    <h7 className="mb-0">{isUnsubscribed ? "Unsubscribed" : "Active Subscription"}</h7>
+                </div>
             </div>
             <span>{sender_address}</span> 
         </div>

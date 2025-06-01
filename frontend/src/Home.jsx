@@ -8,6 +8,7 @@ const Home = () => {
   const [mail, setMail] = useState([])
   const [profilePic, setProfilePic] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
   const navigate = useNavigate()
 
@@ -25,13 +26,31 @@ const Home = () => {
   }, []); 
 
   useEffect(() => {
-    axios.get("http://localhost:3001/api/gmail", { withCredentials: true })
-    .then(() => axios.get("http://localhost:3001/api/subscriptions", { withCredentials: true }))
-    .then(res => setMail(res.data))
-    .catch(err => {
-      console.error("gmail error", err); 
-    }); 
-  }, [mail])
+    const fetchGmailInChunks = async () => {
+      let finished = false;
+
+      while (!finished) {
+        try {
+          const res = await axios.get("http://localhost:3001/api/gmail", { withCredentials: true });
+          if (res.data.done) {  // when backend returns {done: true}
+            console.log("Finished reading inbox.");
+            finished = true;
+          }
+          const subscriptions = await axios.get("http://localhost:3001/api/subscriptions", { withCredentials: true });
+          setMail(subscriptions.data);
+          setIsLoading(false);
+          
+        } catch (err) {
+          console.error("Error while fetching Gmail:", err);
+          finished = true;
+          setIsLoading(false);
+        }
+      }
+    };
+    fetchGmailInChunks();
+  }, []);
+
+
 
 
   function handleOnSubscribe (emailId) {
@@ -58,7 +77,13 @@ const Home = () => {
   return (
     <div>
       <Navbar isLoggedIn={true} profilePic={profilePic} searchTerm={searchTerm} setSearchTerm={setSearchTerm}/>
-  
+
+      {isLoading && (
+        <div className="position-fixed top-50 start-50 translate-middle text-muted fs-2" style={{ zIndex: 1000, pointerEvents: 'none' }}>
+          Looking through email...
+        </div>
+      )}
+
       <div style={{marginLeft: "15%", marginRight: "15%"}}>
         {/* <button className="btn btn-primary">hello</button> */}
         {filteredAndSortedMail.map((i, index) => (

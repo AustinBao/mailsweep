@@ -77,14 +77,17 @@ app.get("/api/gmail", async (req, res) => {
   // You’re telling Google: "I want to use Gmail API version 1." auth is your authorized client. Now you can call Gmail API methods.
 
   try {
-    // userId: "me" means “use the currently authenticated user.”
-
-    // const result = await gmail.users.messages.list({ userId: "me", maxResults: 5, pageToken: pageToken }); // users.messages.list is a Gmail API function.
     const result = await gmail.users.messages.list({
-      userId: "me",
-      maxResults: 5,
+      userId: "me",  // userId: "me" means “use the currently authenticated user.”
+      labelIds: ['INBOX'],
+      maxResults: 10,
       pageToken: currentPageToken,
     })
+
+    if (!result.data.messages || result.data.messages.length === 0) {
+      currentPageToken = null;
+      return res.status(200).json({ done: true, messages: [] });
+    }
 
     currentPageToken = result.data.nextPageToken
 
@@ -131,7 +134,8 @@ app.get("/api/gmail", async (req, res) => {
       // saveSubscriptionsToDB(userId, senders[i], sender_addresses[i], unsubLinks[i], email_ids[i]);
     }
 
-    res.json(result.data);
+    // res.json(result.data);
+    res.status(200).json({ done: !currentPageToken, messages: result.data.messages });
 
   } catch (err) {
     console.error(err);
@@ -190,8 +194,8 @@ app.get('/api/subscriptions', async (req, res) => {
     //   [userId]
     // );
     // res.json(result.rows);
-
-    res.json(tempDB)
+    console.log(tempDB.length);
+    res.json(tempDB);
   } catch (err) {
     console.error('Error fetching subscriptions:', err);
     res.status(500).send('Error retrieving subscriptions');

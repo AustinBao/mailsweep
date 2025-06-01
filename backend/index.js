@@ -96,9 +96,18 @@ app.get("/api/gmail", async (req, res) => {
     for (let message of result.data.messages) {
       const data = await processMessage(gmail, message.id)
       if (data) {
-        let indexOfSenderAdress = data.sender.indexOf("<")
-        let sender = data.sender.slice(0, indexOfSenderAdress)
-        let sender_address = data.sender.slice(indexOfSenderAdress)
+        let rawSender = data.sender;
+        let sender = "";
+        let sender_address = "";
+
+        if (rawSender.includes("<")) {
+          let indexOfSenderAddress = rawSender.indexOf("<");
+          sender = rawSender.slice(0, indexOfSenderAddress).trim();
+          sender_address = rawSender.slice(indexOfSenderAddress)
+        } else {
+          sender = ""; // or rawSender if you want to treat this as the sender name
+          sender_address = rawSender.trim();
+        }
 
         unsubLinks.push(data.unsubLink)
         senders.push(sender)
@@ -112,7 +121,6 @@ app.get("/api/gmail", async (req, res) => {
       let entry = {}
       entry.user_id = userId
       entry.sender = senders[i]
-      console.log(senders[i] + "     " + sender_addresses[i])
       entry.sender_address = sender_addresses[i]
       entry.unsubscribe_link = unsubLinks[i]
       entry.domain_pic = getFaviconURL(sender_addresses[i])
@@ -182,8 +190,6 @@ app.get('/api/subscriptions', async (req, res) => {
     //   [userId]
     // );
     // res.json(result.rows);
-
-    console.log(tempDB.length)
 
     res.json(tempDB)
   } catch (err) {

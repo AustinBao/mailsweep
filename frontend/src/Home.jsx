@@ -22,7 +22,17 @@ const Home = () => {
       console.error("Not authenticated", err);
       navigate("/login");
     });
-}, []); 
+  }, []); 
+
+  useEffect(() => {
+    axios.get("http://localhost:3001/api/gmail", { withCredentials: true })
+    .then(() => axios.get("http://localhost:3001/api/subscriptions", { withCredentials: true }))
+    .then(res => setMail(res.data))
+    .catch(err => {
+      console.error("gmail error", err); 
+    }); 
+  }, [mail])
+
 
   function handleOnSubscribe (emailId) {
     setMail(prev =>

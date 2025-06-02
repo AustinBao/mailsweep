@@ -86,6 +86,29 @@ app.get("/api/people", async (req, res) => {
   res.json(req.user.profile_pic);
 });
 
+app.get("/api/userGmailInfo", async (req, res) => {
+  if (!req.isAuthenticated()) {
+    return res.status(401).send("Not Authenticated")
+  }
+  const accessToken = req.user.accessToken
+  const userId = req.user.id
+
+  const oauth2Client = new google.auth.OAuth2()
+  oauth2Client.setCredentials({ access_token: accessToken })
+  const gmail = google.gmail({ version: "v1", auth: oauth2Client})
+
+  try {
+    const result = await gmail.users.getProfile({userId: 'me'})
+    const messagesTotal = result.data.messagesTotal
+    const threadsTotal = result.data.threadsTotal
+    console.log(threadsTotal, messagesTotal, "HELLO THIS IS A TEST MESSAGE PLEASE SEE THIS")
+  } catch (err) {
+    console.log(err)
+    res.status(500).send("Failed to fetch Gmail data");
+  }
+  
+})
+
 
 // let currentPageToken = null;
 app.get("/api/gmail", async (req, res) => {

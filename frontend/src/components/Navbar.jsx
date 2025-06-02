@@ -35,14 +35,14 @@ const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm }) => {
                         <div className="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0"> 
 
                             {isLoggedIn && (
-                                <div className="d-flex" role="search" style={{ width: "300px" }}>
+                                <div className="d-flex" role="search" style={{ width: "350px" }}>
                                     <input 
                                     className="form-control me-2" 
                                     type="search" 
                                     placeholder="Search senders..." 
-                                    aria-label="Search"
+                                    aria-label="Search senders"
                                     value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    onChange={(event) => setSearchTerm(event.target.value)}
                                     />
                                 </div>
                             )}

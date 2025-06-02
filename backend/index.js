@@ -148,6 +148,7 @@ app.get("/api/gmail", async (req, res) => {
     let senders = []
     let sender_addresses = []
     let email_ids = []
+    let domain_pics = []
 
     for (let message of result.data.messages) {
       const data = await processMessage(gmail, message.id)
@@ -164,26 +165,18 @@ app.get("/api/gmail", async (req, res) => {
           sender = ""; // or rawSender if you want to treat this as the sender name
           sender_address = rawSender.trim();
         }
-
+        
         unsubLinks.push(data.unsubLink)
         senders.push(sender)
         sender_addresses.push(sender_address)
         email_ids.push(message.id)
+        domain_pics.push(getFaviconURL(sender_address))
       } 
     }
 
     // console.log(unsubLinks, senders, email_ids)
     for (let i = 0; i < senders.length; i++) {
-      let entry = {}
-      entry.user_id = userId
-      entry.sender = senders[i]
-      entry.sender_address = sender_addresses[i]
-      entry.unsubscribe_link = unsubLinks[i]
-      entry.domain_pic = getFaviconURL(sender_addresses[i])
-
-      tempDB.push(entry)
-
-      // saveSubscriptionsToDB(userId, senders[i], sender_addresses[i], unsubLinks[i], email_ids[i]);
+      saveSubscriptionsToDB(userId, senders[i], sender_addresses[i], unsubLinks[i], email_ids[i], domain_pics[i]);
     }
 
     // res.json(result.data);
@@ -208,23 +201,32 @@ function getFaviconURL(rawEmail) {
   return `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
 }
 
-let tempDB = [
-  {
-    'user_id': '6',
-    'sender': 'Notion Team',
-    'sender_address': '<team@mail.notion.so> BOB',
-    'unsubscribe_link': 'https://e.customeriomail.com/manage_subscription_preferences/dgTv2AUJAIfDtymGw7cpAZcnJZianPhoWZ9VxZUn_g==',
-    'domain_pic': 'https://www.google.com/s2/favicons?domain=focusrite.com&sz=128'
-  }
-]
+// 1. get message id from gmail API (5 emails)
+// 2. Some will be unique -> add to db as unique sender addresses. The repeated emails (we check by sender
+//    address) -> log them in the mail_to_delete table with the parent sender address id which came first as the key.  
+// 3. When user clicks batch delete link, it pulls * where id = parent sender address id. 
 
-async function saveSubscriptionsToDB (userId, sender, sender_address, unsubLink, email_id) {
-  await db.query(`INSERT INTO subscriptions 
-    (user_id, email_id, sender, sender_address, subject, unsubscribe_link, is_unsubscribed, unsubscribed_at) 
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
-    ON CONFLICT (user_id, sender_address) DO NOTHING`, // will stop the error from being triggered if (user_id, sender_address) pair already exists.
-    [userId, email_id, sender, sender_address, null, unsubLink, false, null]
+async function saveSubscriptionsToDB (userId, sender, sender_address, unsubLink, email_id, domain_pic) {
+  const result = await db.query(`INSERT INTO subscriptions 
+    (user_id, email_id, sender, sender_address, subject, unsubscribe_link, is_unsubscribed, unsubscribed_at, domain_pic) 
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
+    ON CONFLICT (user_id, sender_address) DO NOTHING RETURNING id`, // will stop the error from being triggered if (user_id, sender_address) pair already exists.
+    [userId, email_id, sender, sender_address, null, unsubLink, false, null, domain_pic]
   );
+
+  if (result.rows.length === 0) {
+    const subResult = await db.query(`
+      SELECT id FROM subscriptions WHERE user_id = $1 AND sender_address = $2
+    `, [userId, sender_address]);
+
+    const subscriptionId = subResult.rows[0]?.id;
+    if (subscriptionId) {
+      await db.query(`
+        INSERT INTO mail_to_delete (subscription_id, email_id)
+        VALUES ($1, $2) ON CONFLICT (email_id) DO NOTHING
+      `, [subscriptionId, email_id]);
+    }
+  }
 }
 
 app.get('/auth/google/home', async (request, response) => {
@@ -241,13 +243,13 @@ app.get('/api/subscriptions', async (req, res) => {
 
   const userId = req.user.id;
   try {
-    // const result = await db.query(
-    //   'SELECT * FROM subscriptions WHERE user_id = $1',
-    //   [userId]
-    // );
-    // res.json(result.rows);
-    console.log(tempDB.length);
-    res.json(tempDB);
+    const result = await db.query(
+      'SELECT * FROM subscriptions WHERE user_id = $1',
+      [userId]
+    );
+    res.json(result.rows);
+    // console.log(tempDB.length);
+    // res.json(tempDB);
   } catch (err) {
     console.error('Error fetching subscriptions:', err);
     res.status(500).send('Error retrieving subscriptions');

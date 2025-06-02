@@ -7,7 +7,16 @@ const Card = ({ id, sender, sender_address, link, image, isUnsubscribed, onUnsub
             await axios.post("http://localhost:3001/unsub", {email_id: id}, { withCredentials: true })
             onUnsubscribe(id);
         } catch (err) {
-            console.log("Error with unsubscribing" + err);
+            console.log("Error with unsubscribing: " + err);
+        }
+    }
+
+    async function handleCleanInbox () {
+        try{ 
+            await axios.post("http://localhost:3001/delete", {subscription_id: id}, { withCredentials: true })
+        
+        } catch (err) {
+            console.log("Error with delete: " + err);
         }
     }
 
@@ -40,9 +49,9 @@ const Card = ({ id, sender, sender_address, link, image, isUnsubscribed, onUnsub
         <div className="card-body">
             <h5 className="card-title">Dark card title</h5>
             <p className="card-text">Some quick example text to build on the card title and make up the bulk of the card’s content.</p>
-            <div className="d-flex gap-4">
+            <div className="d-flex gap-5">
                 <h4><a target="_blank" href={link} onClick={handleUnsubClick}>Unsubscribe</a></h4>
-                {/* <h4><a target="_blank" style={{ color: "red" }} href={link}>Clear Inbox</a></h4> */}
+                <h4><a onClick={handleCleanInbox}>Clean Inbox</a></h4>
             </div>
         </div>
         </div> 

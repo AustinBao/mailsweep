@@ -208,10 +208,10 @@ function getFaviconURL(rawEmail) {
 
 async function saveSubscriptionsToDB (userId, sender, sender_address, unsubLink, email_id, domain_pic) {
   const result = await db.query(`INSERT INTO subscriptions 
-    (user_id, email_id, sender, sender_address, subject, unsubscribe_link, is_unsubscribed, unsubscribed_at, domain_pic) 
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
+    (user_id, email_id, sender, sender_address, subject, unsubscribe_link, is_unsubscribed, is_deleted, unsubscribed_at, domain_pic) 
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
     ON CONFLICT (user_id, sender_address) DO NOTHING RETURNING id`, // will stop the error from being triggered if (user_id, sender_address) pair already exists.
-    [userId, email_id, sender, sender_address, null, unsubLink, false, null, domain_pic]
+    [userId, email_id, sender, sender_address, null, unsubLink, false, false, null, domain_pic]
   );
 
   if (result.rows.length === 0) {
@@ -328,35 +328,30 @@ app.post('/delete', async (req, res) => {
   }
   const subscription_id = req.body.subscription_id;
 
-  const allMailToDelete = await db.query(`SELECT * FROM mail_to_delete WHERE subscription_id = $1`, 
-    [subscription_id]
-  );
+  // mark subscription as deleted in db to change card's bg color
+  await db.query("UPDATE subscriptions SET is_deleted = true WHERE id = $1", [subscription_id]);
 
-  const originalMailToDelete = await db.query(`SELECT email_id FROM subscriptions WHERE id = $1`, 
-    [subscription_id]
-  );
+  // grab email ids to delete
+  const allMailToDelete = await db.query(`SELECT * FROM mail_to_delete WHERE subscription_id = $1`, [subscription_id]);
+  const originalMailToDelete = await db.query(`SELECT email_id FROM subscriptions WHERE id = $1`, [subscription_id]);
 
+  // turn into an array to feed into batchDelete
   let emailIds = allMailToDelete.rows.map(item => item.email_id);
   emailIds.push(originalMailToDelete.rows[0].email_id)
-
-  console.log(emailIds)
-
   if (!emailIds.length) {
     return res.status(404).json({ message: 'No emails to delete.' });
   }
-
-  const oauth2Client = new google.auth.OAuth2(
-    process.env.GOOGLE_CLIENT_ID,
-    process.env.GOOGLE_CLIENT_SECRET,
-    "http://localhost:3001/auth/google/callback" // must match the one used during login
-  );
+  // setup google api
+  const oauth2Client = new google.auth.OAuth2( process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_SECRET, "http://localhost:3001/auth/google/callback" );
   oauth2Client.setCredentials({ access_token: req.user.accessToken, refresh_token: req.user.refreshToken });
   const gmail = google.gmail({ version: "v1", auth: oauth2Client });
   
-  try {
+  try { 
     const deleteResult = await gmail.users.messages.batchDelete({userId: "me", requestBody: {"ids": emailIds}})
-    console.log(deleteResult)
-    console.log("You clicked delete")
+
+    // Delete removed emails from mail_to_delete table so email counter is accurate
+    await db.query(`DELETE FROM mail_to_delete WHERE subscription_id = $1`, [subscription_id]);
+
     res.status(200).json(deleteResult)
   } catch (err){
     console.log("Couldnt delete mail: " + err)

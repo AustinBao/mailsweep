@@ -57,9 +57,6 @@ const Home = () => {
     fetchGmailInChunks();
   }, []);
 
-
-
-
   function handleOnSubscribe (emailId) {
     setMail(prev =>
       prev.map(m => {
@@ -72,12 +69,27 @@ const Home = () => {
     );
   }
 
+  function handleOnDelete(emailId) {
+    setMail(prev =>
+      prev.map(m => (m.id === emailId ? { ...m, is_deleted: true } : m))
+    );
+    setMailCounters(prev => ({ ...prev, [emailId]: 0 }));
+  }
+
   const filteredAndSortedMail = [...mail].sort((a, b) => {
+    // Move deleted cards to the bottom BUT they are NOT searchable
+    // if (a.is_deleted && !b.is_deleted) return 1;
+    // if (!a.is_deleted && b.is_deleted) return -1;
+
+    // Search functionality
     const aStartsWith = a.sender.toLowerCase().startsWith(searchTerm.toLowerCase());
     const bStartsWith = b.sender.toLowerCase().startsWith(searchTerm.toLowerCase());
-
     if (aStartsWith && !bStartsWith) return -1;
     if (!aStartsWith && bStartsWith) return 1;
+
+    // Move deleted cards to the bottom BUT they ARE searchable
+    if (a.is_deleted && !b.is_deleted) return 1;
+    if (!a.is_deleted && b.is_deleted) return -1;
     return 0;
   });
 
@@ -105,9 +117,12 @@ const Home = () => {
             sender_address={i.sender_address} 
             link={i.unsubscribe_link} 
             image={i.domain_pic}
+            emailCount={i.is_deleted ? "Removed" : (mailCounters[i.id] + 1)}
             isUnsubscribed={i.is_unsubscribed}
+            isDeleted={i.is_deleted}
             onUnsubscribe={handleOnSubscribe} 
-            emailCount={mailCounters[i.id] || 1}/> 
+            onDelete={handleOnDelete}
+          /> 
         ))}
       </div>  
     </div>

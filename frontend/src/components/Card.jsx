@@ -1,7 +1,8 @@
 import axios from 'axios';
+import { useState } from 'react';
 
-const Card = ({ id, sender, sender_address, link, image, isUnsubscribed, onUnsubscribe, emailCount }) => {
-
+const Card = ({ id, sender, sender_address, link, image, emailCount, isUnsubscribed, isDeleted, onUnsubscribe, onDelete }) => {
+    
     async function handleUnsubClick () {
         try{ 
             await axios.post("http://localhost:3001/unsub", {email_id: id}, { withCredentials: true })
@@ -14,14 +15,14 @@ const Card = ({ id, sender, sender_address, link, image, isUnsubscribed, onUnsub
     async function handleCleanInbox () {
         try{ 
             await axios.post("http://localhost:3001/delete", {subscription_id: id}, { withCredentials: true })
-        
+            onDelete(id); // updates parent state (marks card as deleted + resets counter)
         } catch (err) {
             console.log("Error with delete: " + err);
         }
     }
 
     return (
-       <div className="card border-dark mb-3" style={{maxWidth: "18 rem"}}>
+       <div className="card border-dark mb-3" style={{maxWidth: "18 rem", backgroundColor: isDeleted ? "#ffd6d6" : "white", transition: "background-color 0.3s ease"}}>
         <div className="card-header d-flex justify-content-between p-3" >
             <div className='d-flex align-items-center gap-2'>
 
@@ -32,7 +33,9 @@ const Card = ({ id, sender, sender_address, link, image, isUnsubscribed, onUnsub
                 />
                 <h5 className="mb-0">{sender}</h5>
                 <div className="d-flex align-items-center gap-2">
-                    <span className="badge bg-primary mx-2" style={{borderRadius: '0%'}}>{(emailCount > 1) ? `${emailCount} Emails` : `1 Email` }</span>
+                    <span className="badge bg-primary mx-2" style={{ borderRadius: '0%' }}>
+                        {emailCount === "Removed" ? "Removed" : `${emailCount} Email${emailCount > 1 ? "s" : ""}`}
+                    </span>
                 </div>
             </div>
             <span>{sender_address}</span> 

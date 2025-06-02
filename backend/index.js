@@ -23,7 +23,7 @@ app.use(cors({
 app.use(session({
   secret: process.env.SECRET_KEY, // prevents fake logins
   resave: false, // the session is only saved if it was modified.
-  saveUninitialized: true, // Stores a session even before the user logs in. Set to false in docs...
+  saveUninitialized: false, // Stores a session even before the user logs in. Set to false in docs.
   cookie: { maxAge: 1000 * 60 * 60 * 24}  // 1000 mil x 60 = 1 min x 60 = 1 hour * 24 = 1 day
 }));
 
@@ -249,7 +249,7 @@ app.get('/api/subscriptions', async (req, res) => {
     );
     res.json(result.rows);
     // console.log(tempDB.length);
-    // res.json(tempDB);
+    // res.json(tempDB); 
   } catch (err) {
     console.error('Error fetching subscriptions:', err);
     res.status(500).send('Error retrieving subscriptions');
@@ -293,7 +293,9 @@ app.get('/api/check-auth', (req, res) => {
 
 // User is sent to Google to log in and approve your app.
 app.get("/auth/google", passport.authenticate("google", {
-    scope: ["profile", "email", "https://www.googleapis.com/auth/gmail.readonly"],
+    scope: ["profile", "email", "https://mail.google.com/"],
+    accessType: "offline", // so you get refreshToken
+    prompt: "consent" // forces the consent screen again to get updated scopes
 }));
 
 // What to do based on Google log in.
@@ -312,7 +314,6 @@ app.post('/logout', function(req, res, next) {  // copied directly from doc.
   });
 });
 
-
 app.post('/unsub', async (req, res) => { 
   const email_id = req.body.email_id;
   await db.query(`UPDATE subscriptions SET is_unsubscribed = $1 WHERE id = $2`, 
@@ -321,6 +322,46 @@ app.post('/unsub', async (req, res) => {
   res.status(200).json("Successfully updated is_unsubscribed")
 });
 
+app.post('/delete', async (req, res) => {
+  if (!req.isAuthenticated()) {
+    return res.status(401).send("Not authenticated");
+  }
+  const subscription_id = req.body.subscription_id;
+
+  const allMailToDelete = await db.query(`SELECT * FROM mail_to_delete WHERE subscription_id = $1`, 
+    [subscription_id]
+  );
+
+  const originalMailToDelete = await db.query(`SELECT email_id FROM subscriptions WHERE id = $1`, 
+    [subscription_id]
+  );
+
+  let emailIds = allMailToDelete.rows.map(item => item.email_id);
+  emailIds.push(originalMailToDelete.rows[0].email_id)
+
+  console.log(emailIds)
+
+  if (!emailIds.length) {
+    return res.status(404).json({ message: 'No emails to delete.' });
+  }
+
+  const oauth2Client = new google.auth.OAuth2(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    "http://localhost:3001/auth/google/callback" // must match the one used during login
+  );
+  oauth2Client.setCredentials({ access_token: req.user.accessToken, refresh_token: req.user.refreshToken });
+  const gmail = google.gmail({ version: "v1", auth: oauth2Client });
+  
+  try {
+    const deleteResult = await gmail.users.messages.batchDelete({userId: "me", requestBody: {"ids": emailIds}})
+    console.log(deleteResult)
+    console.log("You clicked delete")
+    res.status(200).json(deleteResult)
+  } catch (err){
+    console.log("Couldnt delete mail: " + err)
+  }
+});
 
 passport.use("google", new GoogleStrategy({  // GoogleStrategy is a Passport strategy that handles Google login for you
   clientID: process.env.GOOGLE_CLIENT_ID, //  from your Google Developer Console 
@@ -350,7 +391,8 @@ passport.use("google", new GoogleStrategy({  // GoogleStrategy is a Passport str
       } else {   // Existing USER
         user = result.rows[0];
       }
-      user.accessToken = accessToken; 
+      user.accessToken = accessToken;
+      user.refreshToken = refreshToken; 
 
       return cb(null, user); // This tells Passport: “Here’s the logged-in user. Save them to the session.”
     } catch (err) {

@@ -12,7 +12,7 @@ const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm }) => {
             navigate("/login"); 
         } else if (isLoggedIn) {
             // modularise this function
-            await axios.post("http://localhost:3001/logout", {}, { withCredentials: true });
+            await axios.post("http://localhost:3001/auth/logout", {}, { withCredentials: true });
             console.log("User logged out");
             navigate("/")
         }

@@ -16,12 +16,12 @@ const Home = () => {
   const navigate = useNavigate()
 
   useEffect(function checkAuthAndFetch() {
-    axios.get("http://localhost:3001/api/check-auth", { withCredentials: true })
-    .then(() => axios.get("http://localhost:3001/api/gmail", { withCredentials: true }))
-    .then(() => axios.get("http://localhost:3001/api/subscriptions", { withCredentials: true }))
+    axios.get("http://localhost:3001/auth/check-auth", { withCredentials: true })
+    .then(() => axios.get("http://localhost:3001/gmail", { withCredentials: true }))
+    .then(() => axios.get("http://localhost:3001/subscriptions", { withCredentials: true }))
     .then(res => setMail(res.data))
-    .then(() => axios.get("http://localhost:3001/api/userGmailInfo", { withCredentials: true }))
-    .then(() => axios.get("http://localhost:3001/api/people", { withCredentials: true }))
+    .then(() => axios.get("http://localhost:3001/gmail/userinfo", { withCredentials: true }))
+    .then(() => axios.get("http://localhost:3001/profilepic", { withCredentials: true }))
     .then(res => setProfilePic(res.data))
     .catch(err => { 
       console.error("Not authenticated", err);
@@ -35,16 +35,16 @@ const Home = () => {
 
       while (!finished) {
         try {
-          const res = await axios.get("http://localhost:3001/api/gmail", { withCredentials: true });
+          const res = await axios.get("http://localhost:3001/gmail", { withCredentials: true });
           if (res.data.done) {  // when backend returns {done: true}
             console.log("Finished reading inbox.");
             finished = true;
           }
-          const subscriptions = await axios.get("http://localhost:3001/api/subscriptions", { withCredentials: true });
+          const subscriptions = await axios.get("http://localhost:3001/subscriptions", { withCredentials: true });
           setMail(subscriptions.data);
           setIsLoading(false);
 
-          const counters = await axios.get("http://localhost:3001/api/mailCounters", { withCredentials: true });
+          const counters = await axios.get("http://localhost:3001/mailcounter", { withCredentials: true });
           setMailCounters(counters.data); 
           
         } catch (err) {

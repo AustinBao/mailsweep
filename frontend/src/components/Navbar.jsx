@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import ProgressBar from './ProgressBar';
 import axios from "axios";
 
 const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm }) => {
@@ -47,6 +48,7 @@ const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm }) => {
                             )}
 
                         </div> 
+                        
                     <div className="col-md-3 text-end"> 
 
                     <div className="col-md-9 text-end d-flex align-items-center justify-content-end gap-3">

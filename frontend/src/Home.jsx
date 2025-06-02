@@ -3,12 +3,15 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Navbar from "./components/Navbar";
 import Card from "./components/Card";
+import ProgressBar from "./components/ProgressBar";
 
 const Home = () => {
   const [mail, setMail] = useState([])
   const [profilePic, setProfilePic] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [progress, setProgress] = useState(0)
+  const [mailCounters, setMailCounters] = useState({})
 
   const navigate = useNavigate()
 
@@ -17,9 +20,10 @@ const Home = () => {
     .then(() => axios.get("http://localhost:3001/api/gmail", { withCredentials: true }))
     .then(() => axios.get("http://localhost:3001/api/subscriptions", { withCredentials: true }))
     .then(res => setMail(res.data))
+    .then(() => axios.get("http://localhost:3001/api/userGmailInfo", { withCredentials: true }))
     .then(() => axios.get("http://localhost:3001/api/people", { withCredentials: true }))
     .then(res => setProfilePic(res.data))
-    .catch(err => {
+    .catch(err => { 
       console.error("Not authenticated", err);
       navigate("/login");
     });
@@ -39,6 +43,9 @@ const Home = () => {
           const subscriptions = await axios.get("http://localhost:3001/api/subscriptions", { withCredentials: true });
           setMail(subscriptions.data);
           setIsLoading(false);
+
+          const counters = await axios.get("http://localhost:3001/api/mailCounters", { withCredentials: true });
+          setMailCounters(counters.data); 
           
         } catch (err) {
           console.error("Error while fetching Gmail:", err);
@@ -85,6 +92,10 @@ const Home = () => {
       )}
 
       <div style={{marginLeft: "15%", marginRight: "15%"}}>
+        <div className="d-flex justify-content-center my-2">
+        <ProgressBar />
+
+        </div>
         {/* <button className="btn btn-primary">hello</button> */}
         {filteredAndSortedMail.map((i, index) => (
           <Card 
@@ -95,7 +106,8 @@ const Home = () => {
             link={i.unsubscribe_link} 
             image={i.domain_pic}
             isUnsubscribed={i.is_unsubscribed}
-            onUnsubscribe={handleOnSubscribe} /> 
+            onUnsubscribe={handleOnSubscribe} 
+            emailCount={mailCounters[i.id] || 1}/> 
         ))}
       </div>  
     </div>

@@ -7,7 +7,7 @@ const router = express.Router();
 router.get("/google", passport.authenticate("google", {
     scope: ["profile", "email", "https://mail.google.com/"],
     accessType: "offline", // so you get refreshToken
-    prompt: "consent" // forces the consent screen again to get updated scopes
+    // prompt: "consent" // forces the consent screen again to get updated scopes
 }));
 
 

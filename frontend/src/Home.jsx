@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from "./components/Navbar";
 import Card from "./components/Card";
 import ProgressBar from "./components/ProgressBar";
+import Footer from "./components/Footer";
 
 const Home = () => {
   const [mail, setMail] = useState([])
@@ -125,6 +126,8 @@ const Home = () => {
           /> 
         ))}
       </div>  
+      <Footer />
+
     </div>
   )
 }

@@ -7,7 +7,8 @@ import authRoutes from './routes/auth.js';
 import gmailRoutes from './routes/gmail.js';
 import subscriptionRoutes from './routes/subscriptions.js';
 import mailCounterRoutes from './routes/mailcounter.js';
-import profilePicRoutes from './routes/profilepic.js';
+import pictureRoute from './routes/picture.js';
+
 
 const app = express()
 const PORT = 3001
@@ -34,8 +35,7 @@ app.use('/auth', authRoutes);
 app.use('/gmail', gmailRoutes);
 app.use('/subscriptions', subscriptionRoutes);
 app.use('/mailcounter', mailCounterRoutes);
-app.use('/profilepic', profilePicRoutes);
-
+app.use('/picture', pictureRoute);
 
 app.get('/', async (req, res) => {
     response.status(200).json({message: 'Server is live'})

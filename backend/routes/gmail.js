@@ -51,6 +51,8 @@ router.get("/userinfo", async (req, res) => {
     const messagesTotal = result.data.messagesTotal
     const threadsTotal = result.data.threadsTotal
     console.log(threadsTotal, messagesTotal, "HELLO THIS IS A TEST MESSAGE PLEASE SEE THIS")
+    res.status(200).json(result);
+
   } catch (err) {
     console.log(err)
     res.status(500).send("Failed to fetch Gmail data");

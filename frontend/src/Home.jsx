@@ -20,9 +20,9 @@ const Home = () => {
     .then(() => axios.get("http://localhost:3001/gmail", { withCredentials: true }))
     .then(() => axios.get("http://localhost:3001/subscriptions", { withCredentials: true }))
     .then(res => setMail(res.data))
-    .then(() => axios.get("http://localhost:3001/gmail/userinfo", { withCredentials: true }))
-    .then(() => axios.get("http://localhost:3001/profilepic", { withCredentials: true }))
+    .then(() => axios.get("http://localhost:3001/picture", { withCredentials: true }))
     .then(res => setProfilePic(res.data))
+    .then(() => axios.get("http://localhost:3001/gmail/userinfo", { withCredentials: true }))  // make sure this returns data
     .catch(err => { 
       console.error("Not authenticated", err);
       navigate("/login");

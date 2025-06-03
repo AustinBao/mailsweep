@@ -26,7 +26,7 @@ passport.use("google", new GoogleStrategy({  // GoogleStrategy is a Passport str
       const userEmail = profile.email;
       const userId = profile.id;
       const userProfilePic = profile.photos[0].value;
-
+            
       const result = await db.query("SELECT * FROM users WHERE email = $1", [userEmail]);
       let user;
       

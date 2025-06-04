@@ -130,10 +130,11 @@ const Home = () => {
           Looking through email...
         </div>
       )}
+        
+      <ProgressBar progress={progress}/>
 
       <div style={{marginLeft: "15%", marginRight: "15%"}}>
         <div className="d-flex justify-content-center my-2">
-        <ProgressBar progress={progress}/>
 
         </div>
         {/* <button className="btn btn-primary">hello</button> */}

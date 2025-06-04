@@ -18,8 +18,15 @@ const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm, sortOption,
     };
 
     return (
-        <div className="container"> 
-            <header className="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
+        <div 
+            style={{ 
+            position: 'sticky', 
+            top: '0', 
+            zIndex: '1020'
+        }}
+        >
+            <div style={{ maxWidth: '70%', width: '100%', margin: '0 auto' }}>
+            <header className="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom bg-white">
                 <div className="col-md-3 mb-2 mb-md-0"> 
                     <div className="d-inline-flex"> 
                         <svg className="bi" width="40" height="32" role="img" aria-label="Bootstrap">
@@ -69,6 +76,7 @@ const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm, sortOption,
                     </div> 
                 </div> 
             </header> 
+        </div>
         </div>
     )
 }

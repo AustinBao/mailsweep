@@ -35,15 +35,26 @@ const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm }) => {
                         <div className="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0"> 
 
                             {isLoggedIn && (
-                                <div className="d-flex" role="search" style={{ width: "350px" }}>
-                                    <input 
-                                    className="form-control me-2" 
-                                    type="search" 
-                                    placeholder="Search senders..." 
-                                    aria-label="Search senders"
-                                    value={searchTerm}
-                                    onChange={(event) => setSearchTerm(event.target.value)}
-                                    />
+                                <div className="d-flex">
+                                    <div className="d-flex" role="search" style={{ width: "350px" }}>
+                                        <input className="form-control me-2" type="search" placeholder="Search senders..." aria-label="Search senders" 
+                                            value={searchTerm}
+                                            onChange={(event) => setSearchTerm(event.target.value)}
+                                        />
+                                    </div>
+
+                                    <div className="dropdown">
+                                        <button className="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            Filter
+                                        </button>
+                                        <ul className="dropdown-menu">
+                                            <li><a className="dropdown-item" href="#">Alphabetically</a></li>
+                                            <li><a className="dropdown-item" href="#">Email Count</a></li>
+                                            <li><hr class="dropdown-divider"/></li>
+                                            <li><a className="dropdown-item" href="#">Search by address</a></li>
+                                        </ul>
+                                    </div>
+
                                 </div>
                             )}
 

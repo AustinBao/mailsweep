@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import Typewriter from 'typewriter-effect';
 
 const CenterScreenshot = () => {
 
@@ -10,7 +11,22 @@ const CenterScreenshot = () => {
 
     return (
     <div className="px-4 pt-5 my-5 text-center border-bottom">
-        <h1 className="display-4 fw-bold text-body-emphasis">Clean Inbox. Clear Mind.</h1>
+        <h1 className="display-4 fw-bold text-body-emphasis">
+            Clean Inbox.{" "}
+            <span className="d-inline-block" style={{ display: "inline-block", minWidth: "330px", textAlign: "left"}}>
+            <Typewriter
+                options={{
+                strings: ['Clear Mind.', 'Fresh Start.', 'Clear Goals.', 'Time Back.', 'Less Stress.'],
+                autoStart: true,
+                loop: true,
+                delay: 100,
+                deleteSpeed: 60,
+                pauseFor: 3000,
+                }}
+            />
+            </span>
+        </h1>
+
         <div className="col-lg-6 mx-auto">
             <p className="lead mb-4">
             Instantly clean and organize your Gmail with Mail Sweep — the smart tool that helps you unsubscribe from unwanted emails, declutter your inbox, and take back control. No more digging through spam or endless scrolls — just a lighter, cleaner inbox in one click.

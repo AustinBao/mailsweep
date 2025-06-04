@@ -48,10 +48,9 @@ router.get("/userinfo", async (req, res) => {
 
   try {
     const result = await gmail.users.getProfile({userId: 'me'})
-    const messagesTotal = result.data.messagesTotal
+    // const messagesTotal = result.data.messagesTotal
     const threadsTotal = result.data.threadsTotal
-    console.log(threadsTotal, messagesTotal, "HELLO THIS IS A TEST MESSAGE PLEASE SEE THIS")
-    res.status(200).json(result);
+    res.status(200).json(threadsTotal);
 
   } catch (err) {
     console.log(err)
@@ -163,7 +162,7 @@ router.get("/", async (req, res) => {
     const result = await gmail.users.messages.list({
       userId: "me",  // userId: "me" means “use the currently authenticated user.”
       labelIds: ['INBOX'], // look only in inbox
-      maxResults: 10,
+      maxResults: 5,
       pageToken: currentPageToken,
     })
 

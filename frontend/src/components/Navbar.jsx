@@ -1,8 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 
-
-const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm }) => {
+const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm, sortOption, setSortOption }) => {
 
     const navigate = useNavigate();
 
@@ -19,8 +18,15 @@ const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm }) => {
     };
 
     return (
-        <div className="container"> 
-            <header className="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
+        <div 
+            style={{ 
+            position: 'sticky', 
+            top: '0', 
+            zIndex: '1020'
+        }}
+        >
+            <div style={{ maxWidth: '70%', width: '100%', margin: '0 auto' }}>
+            <header className="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom bg-white">
                 <div className="col-md-3 mb-2 mb-md-0"> 
                     <div className="d-inline-flex"> 
                         <svg className="bi" width="40" height="32" role="img" aria-label="Bootstrap">
@@ -35,26 +41,24 @@ const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm }) => {
                         <div className="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0"> 
 
                             {isLoggedIn && (
-                                <div className="d-flex">
-                                    <div className="d-flex" role="search" style={{ width: "350px" }}>
-                                        <input className="form-control me-2" type="search" placeholder="Search senders..." aria-label="Search senders" 
-                                            value={searchTerm}
-                                            onChange={(event) => setSearchTerm(event.target.value)}
-                                        />
-                                    </div>
-
-                                    <div className="dropdown">
-                                        <button className="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                            Filter
-                                        </button>
-                                        <ul className="dropdown-menu">
-                                            <li><a className="dropdown-item" href="#">Alphabetically</a></li>
-                                            <li><a className="dropdown-item" href="#">Email Count</a></li>
-                                            <li><hr class="dropdown-divider"/></li>
-                                            <li><a className="dropdown-item" href="#">Search by address</a></li>
-                                        </ul>
-                                    </div>
-
+                                <div className="d-flex align-items-center" role="search" style={{ gap: '10px', width: "500px" }}>
+                                    <input 
+                                    className="form-control me-2" 
+                                    type="search" 
+                                    placeholder="Search senders..." 
+                                    aria-label="Search senders"
+                                    value={searchTerm}
+                                    onChange={(event) => setSearchTerm(event.target.value)}
+                                    />
+                                    <select
+                                    className='form-select'
+                                    value={sortOption}
+                                    onChange={(e) => setSortOption(e.target.value)}
+                                    style={{ width: '180px' }}
+                                    >
+                                        <option value='alphabetical'>Sort: A → Z</option>
+                                        <option value='most'>Sort: Most Emails</option>
+                                    </select>
                                 </div>
                             )}
 
@@ -83,6 +87,7 @@ const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm }) => {
                     </div> 
                 </div> 
             </header> 
+        </div>
         </div>
     )
 }

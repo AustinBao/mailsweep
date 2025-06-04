@@ -13,6 +13,7 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [progress, setProgress] = useState(0)
   const [mailCounters, setMailCounters] = useState({})
+  const [sortOption, setSortOption] = useState("alphabetical")
 
   const navigate = useNavigate()
 
@@ -23,14 +24,25 @@ const Home = () => {
     .then(res => setMail(res.data))
     .then(() => axios.get("http://localhost:3001/picture", { withCredentials: true }))
     .then(res => setProfilePic(res.data))
-    .then(() => axios.get("http://localhost:3001/gmail/userinfo", { withCredentials: true }))  // make sure this returns data
     .catch(err => { 
       console.error("Not authenticated", err);
       navigate("/login");
     });
-  }, []); 
+  }, []);  
 
+  //useEffect for updating page (senders, email counts, progress bar)
   useEffect(() => {
+    //fetches total number of emails in inbox (positioned here because otherwise the useEffect would run without the total being updated properly)
+    let total;
+    axios.get("http://localhost:3001/gmail/userinfo", { withCredentials: true })
+    .then(res => { 
+      //just incase the inbox is fully empty because a few lines down there could be division by 0
+      if (res.data === 0) {
+        total = 1
+      } else {
+        total = res.data
+      }
+    })
     const fetchGmailInChunks = async () => {
       let finished = false;
 
@@ -40,14 +52,28 @@ const Home = () => {
           if (res.data.done) {  // when backend returns {done: true}
             console.log("Finished reading inbox.");
             finished = true;
-          }
+          } 
+
           const subscriptions = await axios.get("http://localhost:3001/subscriptions", { withCredentials: true });
           setMail(subscriptions.data);
           setIsLoading(false);
 
           const counters = await axios.get("http://localhost:3001/mailcounter", { withCredentials: true });
           setMailCounters(counters.data); 
-          
+
+          var totalMailRead = 0
+          for (const key in counters.data) {
+            if (counters.data.hasOwnProperty(key)) {
+              totalMailRead += counters.data[key]
+              }
+            }  
+
+          if (finished) {
+            setProgress(100)
+          } else { 
+            setProgress((totalMailRead/total) * 100)
+          }
+            
         } catch (err) {
           console.error("Error while fetching Gmail:", err);
           finished = true;
@@ -77,36 +103,39 @@ const Home = () => {
     setMailCounters(prev => ({ ...prev, [emailId]: 0 }));
   }
 
-  const filteredAndSortedMail = [...mail].sort((a, b) => {
-    // Move deleted cards to the bottom BUT they are NOT searchable
-    // if (a.is_deleted && !b.is_deleted) return 1;
-    // if (!a.is_deleted && b.is_deleted) return -1;
-
-    // Search functionality
-    const aStartsWith = a.sender.toLowerCase().startsWith(searchTerm.toLowerCase());
-    const bStartsWith = b.sender.toLowerCase().startsWith(searchTerm.toLowerCase());
-    if (aStartsWith && !bStartsWith) return -1;
-    if (!aStartsWith && bStartsWith) return 1;
-
-    // Move deleted cards to the bottom BUT they ARE searchable
+  const filteredAndSortedMail = [...mail]
+  .filter(m => m.sender.toLowerCase().includes(searchTerm.toLowerCase()))
+  .sort((a, b) => {
+    // Sort deleted to bottom
     if (a.is_deleted && !b.is_deleted) return 1;
     if (!a.is_deleted && b.is_deleted) return -1;
-    return 0;
+
+    if (sortOption === "most") {
+      // Sort by most emails
+      const aCount = mailCounters[a.id] ?? 0;
+      const bCount = mailCounters[b.id] ?? 0;
+      return bCount - aCount;
+    } else {
+      // Default: alphabetical
+      return a.sender.localeCompare(b.sender);
+    }
   });
+
 
   return (
     <div>
-      <Navbar isLoggedIn={true} profilePic={profilePic} searchTerm={searchTerm} setSearchTerm={setSearchTerm}/>
+      <Navbar isLoggedIn={true} profilePic={profilePic} searchTerm={searchTerm} setSearchTerm={setSearchTerm} sortOption={sortOption} setSortOption={setSortOption} />
 
       {isLoading && (
         <div className="position-fixed top-50 start-50 translate-middle text-muted fs-2" style={{ zIndex: 1000, pointerEvents: 'none' }}>
           Looking through email...
         </div>
       )}
+        
+      <ProgressBar progress={progress}/>
 
       <div style={{marginLeft: "15%", marginRight: "15%"}}>
         <div className="d-flex justify-content-center my-2">
-        <ProgressBar />
 
         </div>
         {/* <button className="btn btn-primary">hello</button> */}

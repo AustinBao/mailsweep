@@ -1,6 +1,7 @@
 import Navbar from "./components/Navbar";
 import CenterScreenshot from "./components/CenterScreenshot";
-import Features from "./components/Features";
+import NewFeature from "./components/NewFeature";
+import Footer from "./components/Footer";
 
 const App = () => {
 
@@ -8,7 +9,8 @@ const App = () => {
     <div>
       <Navbar />
       <CenterScreenshot />
-      <Features />
+      <NewFeature />
+      <Footer />
     </div>
   );
 }

@@ -1,8 +1,7 @@
 import { useNavigate } from 'react-router-dom';
-import ProgressBar from './ProgressBar';
 import axios from "axios";
 
-const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm }) => {
+const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm, sortOption, setSortOption }) => {
 
     const navigate = useNavigate();
 
@@ -35,7 +34,7 @@ const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm }) => {
                         <div className="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0"> 
 
                             {isLoggedIn && (
-                                <div className="d-flex" role="search" style={{ width: "350px" }}>
+                                <div className="d-flex align-items-center" role="search" style={{ gap: '10px', width: "500px" }}>
                                     <input 
                                     className="form-control me-2" 
                                     type="search" 
@@ -44,6 +43,15 @@ const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm }) => {
                                     value={searchTerm}
                                     onChange={(event) => setSearchTerm(event.target.value)}
                                     />
+                                    <select
+                                    className='form-select'
+                                    value={sortOption}
+                                    onChange={(e) => setSortOption(e.target.value)}
+                                    style={{ width: '180px' }}
+                                    >
+                                        <option value='alphabetical'>Sort: A → Z</option>
+                                        <option value='most'>Sort: Most Emails</option>
+                                    </select>
                                 </div>
                             )}
 

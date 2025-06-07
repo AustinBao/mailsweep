@@ -2,38 +2,9 @@ import express from 'express';
 import { google } from 'googleapis';
 import db from '../config/db.js';
 import processMessage from '../utils/processMessage.js';
-
+import { getPageToken, savePageToken, getRootDomain, getFaviconURL } from '../utils/pageToken.js';
 
 const router = express.Router();
-
-
-async function savePageToken(userId, token) {
-  try {
-    await db.query(
-      `UPDATE users SET page_token = $1 WHERE id = $2`,
-      [token, userId]
-    );
-    
-  } catch (err) {
-    console.error("Cant save page token: ", err);
-  }
-}
-
-
-async function getPageToken(userId) {
-  try {
-    const result = await db.query(
-      `SELECT page_token FROM users WHERE id = $1`,
-      [userId]
-    );
-    return result.rows[0].page_token;
-
-  } catch (err) {
-    console.error("Cant get page token: ", err);
-    return null;
-  }
-}
-
 
 router.get("/userinfo", async (req, res) => {
   if (!req.isAuthenticated()) {
@@ -127,22 +98,6 @@ async function saveSubscriptionsToDB (userId, sender, sender_address, unsubLink,
   }
 }
 
-
-function getRootDomain(domain) {
-  const parts = domain.split('.');
-  return parts.slice(-2).join('.'); 
-}
-
-
-function getFaviconURL(rawEmail) {
-  // Remove angle brackets if they exist
-  const email = rawEmail.replace(/[<>]/g, "").trim();
-  const rawDomain = email.split('@')[1];
-  const domain = getRootDomain(rawDomain)
-  return `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
-}
-
-
 router.get("/", async (req, res) => {
   // req.isAuthenticated() is from Passport. Passport adds this new method to the req object.
   if (!req.isAuthenticated()) { 
@@ -194,7 +149,7 @@ router.get("/", async (req, res) => {
           sender = rawSender.slice(0, indexOfSenderAddress).trim().replace(/^"+|"+$/g, '');  // removes surrounding quotes
           sender_address = rawSender.slice(indexOfSenderAddress)
         } else {
-          sender = ""; // or rawSender if you want to treat this as the sender name
+          sender = rawSender; 
           sender_address = rawSender.trim();
         }
         

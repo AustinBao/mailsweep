@@ -1,6 +1,6 @@
 const ProgressBar = ({ progress }) => {
     return (
-        <div className="d-flex flex-column align-items-center bg-white" 
+        <div className="d-flex flex-column align-items-center bg-white mt-4" 
         style={{ 
             width: "100%", 
             // position: 'sticky', 

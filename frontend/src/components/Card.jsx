@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { useState } from 'react';
 
 const Card = ({ id, sender, sender_address, link, image, emailCount, isUnsubscribed, isDeleted, onUnsubscribe, onDelete }) => {
     
@@ -24,19 +23,15 @@ const Card = ({ id, sender, sender_address, link, image, emailCount, isUnsubscri
     return (
        <div className="card border-dark mb-3" style={{maxWidth: "18 rem", backgroundColor: isDeleted ? "#ffd6d6" : "white", transition: "background-color 0.3s ease"}}>
         <div className="card-header d-flex justify-content-between p-3" >
-            <div className='d-flex align-items-center gap-2'>
-
-                <img
-                    src={image}
-                    alt="favicon"
-                    style={{ width: "30px", height: "30px", marginRight: "10px" }}
-                />
+            <div className='d-flex align-items-center gap-3'>
+                {/* Favicon image */}
+                <img src={image} alt="favicon" style={{ width: "30px", height: "30px"}}/>
+                {/* Sender name */}
                 <h5 className="mb-0">{sender}</h5>
-                <div className="d-flex align-items-center gap-2">
-                    <span className="badge bg-primary mx-2" style={{ borderRadius: '0%' }}>
-                        {emailCount === "Removed" ? "Removed" : `${emailCount} Email${emailCount > 1 ? "s" : ""}`}
-                    </span>
-                </div>
+                {/* Email count */}
+                <span className="badge rounded-pill text-bg-primary">
+                    {emailCount === "Removed" ? "Removed" : `${emailCount} Email${emailCount > 1 ? "s" : ""}`}
+                </span>
             </div>
             <span>{sender_address}</span> 
         </div>

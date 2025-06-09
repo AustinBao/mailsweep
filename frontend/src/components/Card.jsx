@@ -29,7 +29,7 @@ const Card = ({ id, sender, sender_address, link, image, emailCount, isUnsubscri
                 {/* Sender name */}
                 <h5 className="mb-0">{sender}</h5>
                 {/* Email count */}
-                <span className="badge rounded-pill text-bg-primary">
+                <span className="badge rounded-pill text-bg-warning text-muted">
                     {emailCount === "Removed" ? "Removed" : `${emailCount} Email${emailCount > 1 ? "s" : ""}`}
                 </span>
             </div>

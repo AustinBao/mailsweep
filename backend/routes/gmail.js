@@ -2,7 +2,7 @@ import express from 'express';
 import { google } from 'googleapis';
 import db from '../config/db.js';
 import processMessage from '../utils/processMessage.js';
-import { getPageToken, savePageToken, getRootDomain, getFaviconURL } from '../utils/pageToken.js';
+import { getPageToken, savePageToken, getRootDomain, getFaviconURL, getLastScanTimestamp, saveLastScanTimestamp } from '../utils/pageToken.js';
 
 const router = express.Router();
 
@@ -75,12 +75,12 @@ router.post('/delete', async (req, res) => {
   }
 });
 
-async function saveSubscriptionsToDB (userId, sender, sender_address, unsubLink, email_id, domain_pic) {
+async function saveSubscriptionsToDB (userId, sender, sender_address, unsubLink, email_id, domain_pic, latest_date) {
   const result = await db.query(`INSERT INTO subscriptions 
-    (user_id, email_id, sender, sender_address, subject, unsubscribe_link, is_unsubscribed, is_deleted, unsubscribed_at, domain_pic) 
+    (user_id, email_id, sender, sender_address, unsubscribe_link, is_unsubscribed, is_deleted, unsubscribed_at, domain_pic, latest_date) 
     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
     ON CONFLICT (user_id, sender_address) DO NOTHING RETURNING id`, // will stop the error from being triggered if (user_id, sender_address) pair already exists.
-    [userId, email_id, sender, sender_address, null, unsubLink, false, false, null, domain_pic]
+    [userId, email_id, sender, sender_address, unsubLink, false, false, null, domain_pic, latest_date]
   );
 
   if (result.rows.length === 0) {
@@ -89,11 +89,13 @@ async function saveSubscriptionsToDB (userId, sender, sender_address, unsubLink,
     `, [userId, sender_address]);
 
     const subscriptionId = subResult.rows[0]?.id;
+
     if (subscriptionId) {
-      await db.query(`
-        INSERT INTO mail_to_delete (subscription_id, email_id)
-        VALUES ($1, $2) ON CONFLICT (email_id) DO NOTHING
-      `, [subscriptionId, email_id]);
+      await db.query(`UPDATE subscriptions SET latest_date = $1 WHERE id = $2 AND (latest_date IS NULL OR latest_date < $1)`,
+         [latest_date, subscriptionId]);
+
+      await db.query(`INSERT INTO mail_to_delete (subscription_id, email_id) VALUES ($1, $2) ON CONFLICT (email_id) DO NOTHING`,
+         [subscriptionId, email_id]);
     }
   }
 }
@@ -113,16 +115,20 @@ router.get("/", async (req, res) => {
 
   try {
     const currentPageToken = await getPageToken(userId);
+    const lastTimestamp = await getLastScanTimestamp(userId);
+    const query = lastTimestamp ? `after:${lastTimestamp}` : '';
 
     const result = await gmail.users.messages.list({
       userId: "me",  // userId: "me" means “use the currently authenticated user.”
       labelIds: ['INBOX'], // look only in inbox
       maxResults: 5,
+      q: query, 
       pageToken: currentPageToken,
     })
 
     if (!result.data.messages || result.data.messages.length === 0) {  // when we reach the end of the inbox
       await savePageToken(userId, null);  // clear page_token in db if no more emails
+      await saveLastScanTimestamp(userId, Math.floor(Date.now() / 1000));
       return res.status(200).json({ done: true, messages: [] });
     }
 
@@ -136,6 +142,7 @@ router.get("/", async (req, res) => {
     let sender_addresses = []
     let email_ids = []
     let domain_pics = []
+    let latest_dates = []
 
     for (let message of result.data.messages) {
       const data = await processMessage(gmail, message.id)
@@ -158,12 +165,13 @@ router.get("/", async (req, res) => {
         sender_addresses.push(sender_address)
         email_ids.push(message.id)
         domain_pics.push(getFaviconURL(sender_address))
+        latest_dates.push(data.latest_date)
       } 
     }
 
     // console.log(unsubLinks, senders, email_ids)
     for (let i = 0; i < senders.length; i++) {
-      saveSubscriptionsToDB(userId, senders[i], sender_addresses[i], unsubLinks[i], email_ids[i], domain_pics[i]);
+      saveSubscriptionsToDB(userId, senders[i], sender_addresses[i], unsubLinks[i], email_ids[i], domain_pics[i], latest_dates[i]);
     }
 
     // res.json(result.data);

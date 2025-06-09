@@ -24,6 +24,25 @@ export async function getPageToken(userId) {
   }
 }
 
+
+export async function getLastScanTimestamp(userId) {
+  try {
+    const result = await db.query(`SELECT last_scan_timestamp FROM users WHERE id = $1`, [userId]);
+    return result.rows[0]?.last_scan_timestamp || null;
+  } catch (err) {
+    console.error("Error fetching last scan timestamp:", err);
+    return null;
+  }
+}
+
+export async function saveLastScanTimestamp(userId, timestamp) {
+  try {
+    await db.query(`UPDATE users SET last_scan_timestamp = $1 WHERE id = $2`, [timestamp, userId]);
+  } catch (err) {
+    console.error("Error saving last scan timestamp:", err);
+  }
+}
+
 export function getRootDomain(domain) {
   const parts = domain.split('.');
   return parts.slice(-2).join('.'); 

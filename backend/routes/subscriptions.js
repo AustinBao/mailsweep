@@ -12,7 +12,7 @@ router.get('/', async (req, res) => {
   const userId = req.user.id;
   try {
     const result = await db.query(
-      'SELECT * FROM subscriptions WHERE user_id = $1',
+      'SELECT * FROM subscriptions WHERE user_id = $1 ORDER BY latest_date DESC',
       [userId]
     );
     res.json(result.rows);

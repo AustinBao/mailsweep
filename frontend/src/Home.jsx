@@ -13,7 +13,8 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [progress, setProgress] = useState(0)
   const [mailCounters, setMailCounters] = useState({})
-  const [sortOption, setSortOption] = useState("alphabetical")
+  const [sortOption, setSortOption] = useState("most")
+  const [filterOption, setFilterOption] = useState("none")
 
   const navigate = useNavigate()
 
@@ -104,27 +105,37 @@ const Home = () => {
   }
 
   const filteredAndSortedMail = [...mail]
+  // Apply filterOption
+  .filter(m => {
+    if (filterOption === "active") return !m.is_unsubscribed;
+    if (filterOption === "unsubscribed") return m.is_unsubscribed;
+    if (filterOption === "deleted") return m.is_deleted;
+    return true; // on none don't change order
+  })
+  // Apply searchBar (do this after filterOption so you don't show filtered emails)
   .filter(m => m.sender.toLowerCase().includes(searchTerm.toLowerCase()))
+  // Apply sortOption
   .sort((a, b) => {
     // Sort deleted to bottom
     if (a.is_deleted && !b.is_deleted) return 1;
     if (!a.is_deleted && b.is_deleted) return -1;
 
     if (sortOption === "most") {
-      // Sort by most emails
       const aCount = mailCounters[a.id] ?? 0;
       const bCount = mailCounters[b.id] ?? 0;
       return bCount - aCount;
-    } else {
-      // Default: alphabetical
+    } else if (sortOption === "alphabetical") {
       return a.sender.localeCompare(b.sender);
+    } else {
+      // sorts recent by default
+      return 0;
     }
   });
 
 
   return (
     <div>
-      <Navbar isLoggedIn={true} profilePic={profilePic} searchTerm={searchTerm} setSearchTerm={setSearchTerm} sortOption={sortOption} setSortOption={setSortOption} />
+      <Navbar isLoggedIn={true} profilePic={profilePic} searchTerm={searchTerm} setSearchTerm={setSearchTerm} setSortOption={setSortOption} setFilterOption={setFilterOption} />
 
       {isLoading && (
         <div className="position-fixed top-50 start-50 translate-middle text-muted fs-2" style={{ zIndex: 1000, pointerEvents: 'none' }}>
@@ -138,7 +149,6 @@ const Home = () => {
         <div className="d-flex justify-content-center my-2">
 
         </div>
-        {/* <button className="btn btn-primary">hello</button> */}
         {filteredAndSortedMail.map((i, index) => (
           <Card 
             key={index} 

@@ -13,8 +13,9 @@ async function processMessage(gmail, messageId) {
   }
   const unsubLink = decodeString(decodedString); 
   const sender = unsubLink ? findSender(payload.headers) : null;
+  const latest_date = parseInt(actualEmail.data.internalDate);
 
-  return unsubLink ? { unsubLink, sender } : null;
+  return unsubLink ? { unsubLink, sender, latest_date } : null;
 }
 
 export default processMessage

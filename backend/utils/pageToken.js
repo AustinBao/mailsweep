@@ -28,7 +28,8 @@ export async function getPageToken(userId) {
 export async function getLastScanTimestamp(userId) {
   try {
     const result = await db.query(`SELECT last_scan_timestamp FROM users WHERE id = $1`, [userId]);
-    return result.rows[0]?.last_scan_timestamp || null;
+    const timestamp =  result.rows[0]?.last_scan_timestamp || null
+    return timestamp;
   } catch (err) {
     console.error("Error fetching last scan timestamp:", err);
     return null;

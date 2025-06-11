@@ -116,7 +116,8 @@ router.get("/", async (req, res) => {
   try {
     const currentPageToken = await getPageToken(userId);
     const lastTimestamp = await getLastScanTimestamp(userId);
-    const query = lastTimestamp ? `after:${lastTimestamp}` : '';
+    const buffer = 30; // in seconds
+    const query = lastTimestamp ? `after:${lastTimestamp - buffer}` : '';
 
     const result = await gmail.users.messages.list({
       userId: "me",  // userId: "me" means “use the currently authenticated user.”
@@ -124,18 +125,7 @@ router.get("/", async (req, res) => {
       maxResults: 5,
       q: query, 
       pageToken: currentPageToken,
-    })
-
-    if (!result.data.messages || result.data.messages.length === 0) {  // when we reach the end of the inbox
-      await savePageToken(userId, null);  // clear page_token in db if no more emails
-      await saveLastScanTimestamp(userId, Math.floor(Date.now() / 1000));
-      return res.status(200).json({ done: true, messages: [] });
-    }
-
-    const nextToken  = result.data.nextPageToken
-    if (nextToken ) {
-      await savePageToken(userId, nextToken ); // save the new page token to page_token
-    }
+    })  
 
     let unsubLinks = []
     let senders = []
@@ -144,7 +134,7 @@ router.get("/", async (req, res) => {
     let domain_pics = []
     let latest_dates = []
 
-    for (let message of result.data.messages) {
+    for (let message of result.data.messages || []) {
       const data = await processMessage(gmail, message.id)
       if (data) {
         let rawSender = data.sender;
@@ -169,13 +159,21 @@ router.get("/", async (req, res) => {
       } 
     }
 
-    // console.log(unsubLinks, senders, email_ids)
     for (let i = 0; i < senders.length; i++) {
       saveSubscriptionsToDB(userId, senders[i], sender_addresses[i], unsubLinks[i], email_ids[i], domain_pics[i], latest_dates[i]);
     }
+    
+    const nextToken  = result.data.nextPageToken
 
-    // res.json(result.data);
-    res.status(200).json({ done: !nextToken, messages: result.data.messages });
+    if (!nextToken) { // reached the end of the inbox
+      await savePageToken(userId, null); // resets pageToken in db 
+      const unixTimestamp = Math.floor(Date.now() / 1000) - 100; // adds a small buffer to avoid missing new messages
+      await saveLastScanTimestamp(userId, unixTimestamp);
+      return res.status(200).json({ done: true, messages: [] });
+    } else {  // continue reading if nextToken isnt null
+      await savePageToken(userId, nextToken ); // save the new page token to page_token
+      return res.status(200).json({ done: false, messages: result.data.messages });
+    }
 
   } catch (err) {
     console.error(err);

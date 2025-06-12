@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 
-const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm, setSortOption, setFilterOption }) => {
+const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm, setSortOption, setFilterOption, onRefresh }) => {
     const navigate = useNavigate();
 
     const handleLoginClick = async () => {
@@ -32,6 +32,13 @@ const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm, setSortOpti
                 <div className="collapse navbar-collapse" id="navbarContent">
                     {isLoggedIn && (
                         <div className="d-flex flex-column flex-md-row align-items-stretch align-items-md-center gap-2 mx-auto my-3" style={{ maxWidth: '500px', width: '100%' }}>
+                            <button type="button" className="btn btn-outline-secondary" onClick={onRefresh}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                                <path fillRule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/>
+                                <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/>
+                                </svg>
+                            </button>
+                            
                             <input
                                 className="form-control"
                                 type="search"
@@ -56,7 +63,7 @@ const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm, setSortOpti
 
                             <div className="btn-group">
                                 <button type="button" className="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-funnel-fill" viewBox="0 0 16 16">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-funnel-fill" viewBox="0 0 16 16">
                                     <path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5z"/>
                                     </svg>
                                 </button>

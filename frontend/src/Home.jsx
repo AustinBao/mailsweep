@@ -72,6 +72,33 @@ const Home = () => {
     fetchGmailInChunks();
   }, []);
 
+  const handleRefresh = async () => {
+    console.log("attempt refresh")
+    let finished = false;
+
+    while (!finished) {
+      try {
+        const res = await axios.get("http://localhost:3001/gmail", { withCredentials: true });
+        if (res.data.done) {
+          console.log("Finished reading inbox.");
+          finished = true;
+        } 
+        
+        const subscriptions = await axios.get("http://localhost:3001/subscriptions", { withCredentials: true });
+        setMail(subscriptions.data);
+        setIsLoading(false);
+
+        const counters = await axios.get("http://localhost:3001/mailcounter", { withCredentials: true });
+        setMailCounters(counters.data); 
+          
+      } catch (err) {
+        console.error("Error while fetching NEW Gmail:", err);
+        finished = true;
+        setIsLoading(false);
+      }
+    }
+  };
+
   function handleOnSubscribe (emailId) {
     setMail(prev =>
       prev.map(m => {
@@ -122,7 +149,14 @@ const Home = () => {
 
   return (
     <div>
-      <Navbar isLoggedIn={true} profilePic={profilePic} searchTerm={searchTerm} setSearchTerm={setSearchTerm} setSortOption={setSortOption} setFilterOption={setFilterOption} />
+      <Navbar 
+        isLoggedIn={true} 
+        profilePic={profilePic} 
+        searchTerm={searchTerm} 
+        setSearchTerm={setSearchTerm} 
+        setSortOption={setSortOption} 
+        setFilterOption={setFilterOption}
+        onRefresh={handleRefresh} />
 
       {isLoading && (
         <div className="position-fixed top-50 start-50 translate-middle text-muted fs-2" style={{ zIndex: 1000, pointerEvents: 'none' }}>

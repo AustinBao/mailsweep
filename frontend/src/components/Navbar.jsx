@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 
-const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm, setSortOption, setFilterOption, onRefresh }) => {
+const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm, sortOption, setSortOption, filterOption, setFilterOption, onRefresh }) => {
     const navigate = useNavigate();
 
     const handleLoginClick = async () => {
@@ -70,9 +70,13 @@ const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm, setSortOpti
                                 </button>
                                 <ul className="dropdown-menu">
                                     <li><button className="dropdown-item" onClick={() => setSortOption("most")}> Most Emails </button></li>
+                                    <li><hr class="dropdown-divider"/></li>
                                     <li><button className="dropdown-item" onClick={() => setSortOption("least")}> Least Emails </button></li>
+                                    <li><hr class="dropdown-divider"/></li>
                                     <li><button className="dropdown-item" onClick={() => setSortOption("recent")}> Most Recent </button></li>
+                                    <li><hr class="dropdown-divider"/></li>
                                     <li><button className="dropdown-item" onClick={() => setSortOption("oldest")}> Least Recent </button></li>
+                                    <li><hr class="dropdown-divider"/></li>
                                     <li><button className="dropdown-item" onClick={() => setSortOption("alphabetical")}> A → Z </button></li>
                                 </ul>
                             </div>
@@ -85,8 +89,11 @@ const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm, setSortOpti
                                 </button>
                                 <ul className="dropdown-menu">
                                     <li><button className="dropdown-item" onClick={() => setFilterOption("none")}> None </button></li>
+                                    <li><hr class="dropdown-divider"/></li>
                                     <li><button className="dropdown-item" onClick={() => setFilterOption("active")}> Active </button></li>
+                                    <li><hr class="dropdown-divider"/></li>
                                     <li><button className="dropdown-item" onClick={() => setFilterOption("unsubscribed")}> Unsubscribed </button></li>
+                                    <li><hr class="dropdown-divider"/></li>
                                     <li><button className="dropdown-item" onClick={() => setFilterOption("deleted")}> Deleted </button></li>
                                 </ul>
                             </div>

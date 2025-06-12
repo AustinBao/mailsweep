@@ -164,7 +164,9 @@ const Home = () => {
         profilePic={profilePic} 
         searchTerm={searchTerm} 
         setSearchTerm={setSearchTerm} 
+        sortOption={sortOption}
         setSortOption={setSortOption} 
+        filterOption={filterOption}
         setFilterOption={setFilterOption}
         onRefresh={handleRefresh} />
 

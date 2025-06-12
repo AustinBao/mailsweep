@@ -141,6 +141,12 @@ const Home = () => {
       return bCount - aCount;
     } else if (sortOption === "alphabetical") {
       return a.sender.localeCompare(b.sender);
+    } else if (sortOption === "least") {
+      const aCount = mailCounters[a.id] ?? 0;
+      const bCount = mailCounters[b.id] ?? 0;
+      return aCount - bCount;
+    } else if (sortOption === "oldest") {
+      return a.latest_date - b.latest_date
     } else {
       // sorts recent by default
       return 0;

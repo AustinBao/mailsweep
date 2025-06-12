@@ -3,6 +3,7 @@ import { google } from 'googleapis';
 import db from '../config/db.js';
 import processMessage from '../utils/processMessage.js';
 import { getPageToken, savePageToken, getRootDomain, getFaviconURL, getLastScanTimestamp, saveLastScanTimestamp } from '../utils/pageToken.js';
+import chunkArray from '../utils/chunkArray.js';
 
 const router = express.Router();
 
@@ -74,14 +75,22 @@ router.post('/delete', async (req, res) => {
   const gmail = google.gmail({ version: "v1", auth: oauth2Client });
   
   try { 
-    const deleteResult = await gmail.users.messages.batchDelete({userId: "me", requestBody: {"ids": emailIds}})
+    // const deleteResult = await gmail.users.messages.batchDelete({userId: "me", requestBody: {"ids": emailIds}})
+    const chunkedEmailIds = chunkArray(emailIds, 1000)
+
+    for (const chunk of chunkedEmailIds) {
+      await gmail.users.messages.batchDelete({
+        userId: "me",
+        requestBody: { ids: chunk }
+      })
+    }
 
     // Delete removed emails from mail_to_delete table so email counter is accurate
     await db.query(`DELETE FROM mail_to_delete WHERE subscription_id = $1`, [subscription_id]);
     await db.query(`UPDATE users SET total_mail_parsed = GREATEST(total_mail_parsed - $1, 0)
       WHERE id = $2`, [deleteCount, req.user.id])
 
-    res.status(200).json(deleteResult)
+    res.status(200).json({ success: true, deleted: deleteCount })
   } catch (err){
     console.log("Couldnt delete mail: " + err)
   }

@@ -33,17 +33,6 @@ const Home = () => {
 
   //useEffect for updating page (senders, email counts, progress bar)
   useEffect(() => {
-    //fetches total number of emails in inbox (positioned here because otherwise the useEffect would run without the total being updated properly)
-    let total;
-    axios.get("http://localhost:3001/gmail/userinfo", { withCredentials: true })
-    .then(res => { 
-      //just incase the inbox is fully empty because a few lines down there could be division by 0
-      if (res.data === 0) {
-        total = 1
-      } else {
-        total = res.data
-      }
-    })
     const fetchGmailInChunks = async () => {
       let finished = false;
 
@@ -62,17 +51,15 @@ const Home = () => {
           const counters = await axios.get("http://localhost:3001/mailcounter", { withCredentials: true });
           setMailCounters(counters.data); 
 
-          var totalMailRead = 0
-          for (const key in counters.data) {
-            if (counters.data.hasOwnProperty(key)) {
-              totalMailRead += counters.data[key]
-              }
-            }  
+          const userInfo = await axios.get("http://localhost:3001/gmail/userinfo", { withCredentials: true })
+          let totalMailRead = userInfo.data.totalMailParsed
+          let inboxSize = userInfo.data.threadsTotal  
+          console.log(totalMailRead)
 
           if (finished) {
             setProgress(100)
           } else { 
-            setProgress((totalMailRead/total) * 100)
+            setProgress((totalMailRead/inboxSize) * 100)    
           }
             
         } catch (err) {
@@ -132,6 +119,7 @@ const Home = () => {
     setMail(prev =>
       prev.map(m => (m.id === emailId ? { ...m, is_deleted: true } : m))
     );
+
     setMailCounters(prev => ({ ...prev, [emailId]: 0 }));
   }
 
@@ -157,12 +145,17 @@ const Home = () => {
       return bCount - aCount;
     } else if (sortOption === "alphabetical") {
       return a.sender.localeCompare(b.sender);
+    } else if (sortOption === "least") {
+      const aCount = mailCounters[a.id] ?? 0;
+      const bCount = mailCounters[b.id] ?? 0;
+      return aCount - bCount;
+    } else if (sortOption === "oldest") {
+      return a.latest_date - b.latest_date
     } else {
       // sorts recent by default
       return 0;
     }
   });
-
 
   return (
     <div>

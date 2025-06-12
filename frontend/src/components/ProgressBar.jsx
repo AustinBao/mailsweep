@@ -1,16 +1,19 @@
-const ProgressBar = ({ progress }) => {
+const ProgressBar = ({ progress, estWait }) => {
     return (
         <div className="d-flex flex-column align-items-center bg-white mt-4" 
         style={{ 
             width: "100%", 
             // position: 'sticky', 
-            top: '50px', 
+            top: '88px', 
             zIndex: '1010', 
             paddingLeft: '15%', 
             paddingRight: '15%'
         }}
         >
-            <p className="mb-1 fw-bold">{ progress === 100 ? 'Inbox Read' : 'Inbox Progress'}</p>
+            <p className="mb-1 fw-bold">
+                { progress === 100 ? 'Inbox Read' : `Inbox Progress`}
+                </p>
+
             <div className="progress mb-3" style={{ height: "15px", width: "100%" }}>
                 <div 
                     className="progress-bar" 

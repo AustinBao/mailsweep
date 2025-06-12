@@ -3,6 +3,7 @@ import { google } from 'googleapis';
 import db from '../config/db.js';
 import processMessage from '../utils/processMessage.js';
 import { getPageToken, savePageToken, getRootDomain, getFaviconURL, getLastScanTimestamp, saveLastScanTimestamp } from '../utils/pageToken.js';
+import chunkArray from '../utils/chunkArray.js';
 
 const router = express.Router();
 
@@ -10,6 +11,7 @@ router.get("/userinfo", async (req, res) => {
   if (!req.isAuthenticated()) {
     return res.status(401).send("Not Authenticated")
   }
+
   const accessToken = req.user.accessToken
   const userId = req.user.id
 
@@ -18,10 +20,18 @@ router.get("/userinfo", async (req, res) => {
   const gmail = google.gmail({ version: "v1", auth: oauth2Client})
 
   try {
-    const result = await gmail.users.getProfile({userId: 'me'})
+    const profile = await gmail.users.getProfile({userId: 'me'})
     // const messagesTotal = result.data.messagesTotal
-    const threadsTotal = result.data.threadsTotal
-    res.status(200).json(threadsTotal);
+    const threadsTotal = profile.data.threadsTotal
+
+    const result = await db.query(`SELECT total_mail_parsed FROM users WHERE id = $1`, [userId])
+
+    const totalMailParsed = result.rows[0]?.total_mail_parsed ?? 0
+
+    res.status(200).json({
+      threadsTotal,
+      totalMailParsed
+    });
 
   } catch (err) {
     console.log(err)
@@ -43,7 +53,7 @@ router.post('/delete', async (req, res) => {
   if (!req.isAuthenticated()) {
     return res.status(401).send("Not authenticated");
   }
-  const subscription_id = req.body.subscription_id;
+  const subscription_id = req.body.subscription_id; 
 
   // mark subscription as deleted in db to change card's bg color
   await db.query("UPDATE subscriptions SET is_deleted = true WHERE id = $1", [subscription_id]);
@@ -58,18 +68,29 @@ router.post('/delete', async (req, res) => {
   if (!emailIds.length) {
     return res.status(404).json({ message: 'No emails to delete.' });
   }
+  const deleteCount = emailIds.length
   // setup google api
   const oauth2Client = new google.auth.OAuth2( process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_SECRET, "http://localhost:3001/auth/google/callback" );
   oauth2Client.setCredentials({ access_token: req.user.accessToken, refresh_token: req.user.refreshToken });
   const gmail = google.gmail({ version: "v1", auth: oauth2Client });
   
   try { 
-    const deleteResult = await gmail.users.messages.batchDelete({userId: "me", requestBody: {"ids": emailIds}})
+    // const deleteResult = await gmail.users.messages.batchDelete({userId: "me", requestBody: {"ids": emailIds}})
+    const chunkedEmailIds = chunkArray(emailIds, 1000)
+
+    for (const chunk of chunkedEmailIds) {
+      await gmail.users.messages.batchDelete({
+        userId: "me",
+        requestBody: { ids: chunk }
+      })
+    }
 
     // Delete removed emails from mail_to_delete table so email counter is accurate
     await db.query(`DELETE FROM mail_to_delete WHERE subscription_id = $1`, [subscription_id]);
+    await db.query(`UPDATE users SET total_mail_parsed = GREATEST(total_mail_parsed - $1, 0)
+      WHERE id = $2`, [deleteCount, req.user.id])
 
-    res.status(200).json(deleteResult)
+    res.status(200).json({ success: true, deleted: deleteCount })
   } catch (err){
     console.log("Couldnt delete mail: " + err)
   }
@@ -83,6 +104,7 @@ async function saveSubscriptionsToDB (userId, sender, sender_address, unsubLink,
     [userId, email_id, sender, sender_address, unsubLink, false, false, null, domain_pic, latest_date]
   );
 
+  //idk what this does
   if (result.rows.length === 0) {
     const subResult = await db.query(`
       SELECT id FROM subscriptions WHERE user_id = $1 AND sender_address = $2
@@ -98,6 +120,7 @@ async function saveSubscriptionsToDB (userId, sender, sender_address, unsubLink,
          [subscriptionId, email_id]);
     }
   }
+
 }
 
 router.get("/", async (req, res) => {
@@ -126,6 +149,12 @@ router.get("/", async (req, res) => {
       q: query, 
       pageToken: currentPageToken,
     })  
+
+    // await db.query(`
+    //     UPDATE users
+    //     SET total_mail_parsed = total_mail_parsed + 5
+    //     WHERE id = $1
+    //     `, [userId])
 
     let unsubLinks = []
     let senders = []

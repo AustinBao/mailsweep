@@ -70,7 +70,9 @@ const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm, setSortOpti
                                 </button>
                                 <ul className="dropdown-menu">
                                     <li><button className="dropdown-item" onClick={() => setSortOption("most")}> Most Emails </button></li>
+                                    <li><button className="dropdown-item" onClick={() => setSortOption("least")}> Least Emails </button></li>
                                     <li><button className="dropdown-item" onClick={() => setSortOption("recent")}> Most Recent </button></li>
+                                    <li><button className="dropdown-item" onClick={() => setSortOption("oldest")}> Least Recent </button></li>
                                     <li><button className="dropdown-item" onClick={() => setSortOption("alphabetical")}> A → Z </button></li>
                                 </ul>
                             </div>

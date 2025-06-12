@@ -32,13 +32,27 @@ const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm, setSortOpti
                 <div className="collapse navbar-collapse" id="navbarContent">
                     {isLoggedIn && (
                         <div className="d-flex flex-column flex-md-row align-items-stretch align-items-md-center gap-2 mx-auto my-3" style={{ maxWidth: '500px', width: '100%' }}>
+                            {/* Refresh button */}
                             <button type="button" className="btn btn-outline-secondary" onClick={onRefresh}>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-clockwise" viewBox="0 0 16 16">
                                 <path fillRule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/>
                                 <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/>
                                 </svg>
                             </button>
-                            
+                            {/* Toast Message */}
+                            <div className="position-fixed top-0 end-0 p-3" style={{ zIndex: 1055 }}>
+                                <div id="refreshToast" className="toast text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                                    <div className="toast-header bg-success text-white">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" className="bi bi-inbox-fill me-2" viewBox="0 0 16 16">
+                                        <path d="M4.98 4a.5.5 0 0 0-.39.188L1.54 8H6a.5.5 0 0 1 .5.5 1.5 1.5 0 1 0 3 0A.5.5 0 0 1 10 8h4.46l-3.05-3.812A.5.5 0 0 0 11.02 4zm-1.17-.437A1.5 1.5 0 0 1 4.98 3h6.04a1.5 1.5 0 0 1 1.17.563l3.7 4.625a.5.5 0 0 1 .106.374l-.39 3.124A1.5 1.5 0 0 1 14.117 13H1.883a1.5 1.5 0 0 1-1.489-1.314l-.39-3.124a.5.5 0 0 1 .106-.374z" />
+                                    </svg>
+                                    <strong className="me-auto">Refresh Successful!</strong>
+                                    <small>Mail Sweep</small>
+                                    <button type="button" className="btn-close btn-close-white ms-2 mb-1" data-bs-dismiss="toast" aria-label="Close"></button>
+                                    </div>
+                                </div>
+                            </div>
+                            {/* Search bar */}
                             <input
                                 className="form-control"
                                 type="search"
@@ -47,7 +61,7 @@ const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm, setSortOpti
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
-
+                            {/* Sort dropdown */}
                             <div className="btn-group">
                                 <button type="button" className="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-sort-down" viewBox="0 0 16 16">
@@ -60,7 +74,7 @@ const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm, setSortOpti
                                     <li><button className="dropdown-item" onClick={() => setSortOption("alphabetical")}> A → Z </button></li>
                                 </ul>
                             </div>
-
+                            {/* Filter dropdown */}
                             <div className="btn-group">
                                 <button type="button" className="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-funnel-fill" viewBox="0 0 16 16">

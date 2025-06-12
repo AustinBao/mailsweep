@@ -86,12 +86,16 @@ const Home = () => {
   }, []);
 
   const handleRefresh = async () => {
-    console.log("attempt refresh")
+    const toastElement = document.getElementById('refreshToast');
+    const refreshToast = new bootstrap.Toast(toastElement);
+    refreshToast.show();
+
     let finished = false;
 
     while (!finished) {
       try {
         const res = await axios.get("http://localhost:3001/gmail", { withCredentials: true });
+        console.log(res)
         if (res.data.done) {
           console.log("Finished reading inbox.");
           finished = true;
@@ -194,6 +198,7 @@ const Home = () => {
             emailCount={i.is_deleted ? "Removed" : (mailCounters[i.id] + 1)}
             isUnsubscribed={i.is_unsubscribed}
             isDeleted={i.is_deleted}
+            latestDate={i.latest_date}
             onUnsubscribe={handleOnSubscribe} 
             onDelete={handleOnDelete}
           /> 

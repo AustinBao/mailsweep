@@ -104,6 +104,10 @@ const Home = () => {
   };
 
   function handleOnSubscribe (emailId) {
+    const toastElement = document.getElementById('unsubToast');
+    const unsubToast = new bootstrap.Toast(toastElement);
+    unsubToast.show();
+
     setMail(prev =>
       prev.map(m => {
         if (m.id === emailId) {
@@ -116,6 +120,10 @@ const Home = () => {
   }
 
   function handleOnDelete(emailId) {
+    const toastElement = document.getElementById('deleteToast');
+    const deleteToast = new bootstrap.Toast(toastElement);
+    deleteToast.show();
+
     setMail(prev =>
       prev.map(m => (m.id === emailId ? { ...m, is_deleted: true } : m))
     );
@@ -152,8 +160,7 @@ const Home = () => {
     } else if (sortOption === "oldest") {
       return a.latest_date - b.latest_date
     } else {
-      // sorts recent by default
-      return 0;
+      return 0; // sorts recent by default
     }
   });
 

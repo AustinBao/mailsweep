@@ -24,7 +24,8 @@ const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm, sortOption,
                     </svg>
                     <span className="fs-4 ps-2">Mail Sweep</span>
                 </div>
-
+                
+                {/* Burger Icon for Responsive Design */}
                 <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
                     <span className="navbar-toggler-icon"></span>
                 </button>
@@ -39,9 +40,9 @@ const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm, sortOption,
                                 <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/>
                                 </svg>
                             </button>
-                            {/* Toast Message */}
-                            <div className="position-fixed top-0 end-0 p-3" style={{ zIndex: 1055 }}>
-                                <div id="refreshToast" className="toast text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                            {/* Toast Message - Refresh*/}
+                            <div className="position-fixed bottom-0 end-0 p-3" style={{ zIndex: 1055,  }}>
+                                <div id="refreshToast" className="toast text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="2000">
                                     <div className="toast-header bg-success text-white">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" className="bi bi-inbox-fill me-2" viewBox="0 0 16 16">
                                         <path d="M4.98 4a.5.5 0 0 0-.39.188L1.54 8H6a.5.5 0 0 1 .5.5 1.5 1.5 0 1 0 3 0A.5.5 0 0 1 10 8h4.46l-3.05-3.812A.5.5 0 0 0 11.02 4zm-1.17-.437A1.5 1.5 0 0 1 4.98 3h6.04a1.5 1.5 0 0 1 1.17.563l3.7 4.625a.5.5 0 0 1 .106.374l-.39 3.124A1.5 1.5 0 0 1 14.117 13H1.883a1.5 1.5 0 0 1-1.489-1.314l-.39-3.124a.5.5 0 0 1 .106-.374z" />
@@ -69,15 +70,45 @@ const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm, sortOption,
                                     </svg> 
                                 </button>
                                 <ul className="dropdown-menu">
-                                    <li><button className="dropdown-item" onClick={() => setSortOption("most")}> Most Emails </button></li>
-                                    <li><hr class="dropdown-divider"/></li>
-                                    <li><button className="dropdown-item" onClick={() => setSortOption("least")}> Least Emails </button></li>
-                                    <li><hr class="dropdown-divider"/></li>
-                                    <li><button className="dropdown-item" onClick={() => setSortOption("recent")}> Most Recent </button></li>
-                                    <li><hr class="dropdown-divider"/></li>
-                                    <li><button className="dropdown-item" onClick={() => setSortOption("oldest")}> Least Recent </button></li>
-                                    <li><hr class="dropdown-divider"/></li>
-                                    <li><button className="dropdown-item" onClick={() => setSortOption("alphabetical")}> A → Z </button></li>
+                                    <li className="w-100">
+                                        <button 
+                                            className={`dropdown-item w-100 ${sortOption  === "most" ? "active" : ""}`} 
+                                            onClick={() => setSortOption("most")}> 
+                                            Most Emails 
+                                        </button>
+                                    </li>
+                                    <li><hr class="dropdown-divider m-0"/></li>
+                                    <li className="w-100">
+                                        <button 
+                                            className={`dropdown-item w-100 ${sortOption  === "least" ? "active" : ""}`} 
+                                            onClick={() => setSortOption("least")}> 
+                                            Least Emails 
+                                        </button>
+                                    </li>   
+                                    <li><hr class="dropdown-divider m-0"/></li>
+                                    <li className="w-100">
+                                        <button 
+                                            className={`dropdown-item w-100 ${sortOption  === "recent" ? "active" : ""}`} 
+                                            onClick={() => setSortOption("recent")}> 
+                                            Most Recent 
+                                        </button>
+                                    </li>
+                                    <li><hr class="dropdown-divider m-0"/></li>
+                                    <li className="w-100">
+                                        <button 
+                                            className={`dropdown-item w-100 ${sortOption  === "oldest" ? "active" : ""}`} 
+                                            onClick={() => setSortOption("oldest")}> 
+                                            Least Recent 
+                                        </button>
+                                    </li>
+                                    <li><hr class="dropdown-divider m-0"/></li>
+                                    <li className="w-100">
+                                        <button 
+                                            className={`dropdown-item w-100 ${sortOption  === "alphabetical" ? "active" : ""}`} 
+                                            onClick={() => setSortOption("alphabetical")}> 
+                                            A → Z 
+                                        </button>
+                                    </li>
                                 </ul>
                             </div>
                             {/* Filter dropdown */}
@@ -88,18 +119,42 @@ const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm, sortOption,
                                     </svg>
                                 </button>
                                 <ul className="dropdown-menu">
-                                    <li><button className="dropdown-item" onClick={() => setFilterOption("none")}> None </button></li>
-                                    <li><hr class="dropdown-divider"/></li>
-                                    <li><button className="dropdown-item" onClick={() => setFilterOption("active")}> Active </button></li>
-                                    <li><hr class="dropdown-divider"/></li>
-                                    <li><button className="dropdown-item" onClick={() => setFilterOption("unsubscribed")}> Unsubscribed </button></li>
-                                    <li><hr class="dropdown-divider"/></li>
-                                    <li><button className="dropdown-item" onClick={() => setFilterOption("deleted")}> Deleted </button></li>
+                                    <li className="w-100">
+                                        <button 
+                                            className={`dropdown-item w-100 ${filterOption === "none" ? "active" : ""}`} 
+                                            onClick={() => setFilterOption("none")}> 
+                                            None 
+                                        </button>
+                                    </li>
+                                    <li><hr class="dropdown-divider m-0"/></li>
+                                    <li className="w-100">
+                                        <button 
+                                            className={`dropdown-item w-100 ${filterOption === "active" ? "active" : ""}`} 
+                                            onClick={() => setFilterOption("active")}> 
+                                            Active 
+                                        </button>
+                                    </li>
+                                    <li><hr class="dropdown-divider m-0"/></li>
+                                    <li className="w-100">
+                                        <button
+                                            className={`dropdown-item w-100 ${filterOption === "unsubscribed" ? "active" : ""}`} 
+                                            onClick={() => setFilterOption("unsubscribed")}> 
+                                            Unsubscribed 
+                                        </button>
+                                    </li>
+                                    <li><hr class="dropdown-divider m-0"/></li>
+                                    <li className="w-100">
+                                        <button 
+                                            className={`dropdown-item w-100 ${filterOption === "deleted" ? "active" : ""}`} 
+                                            onClick={() => setFilterOption("deleted")}> 
+                                            Deleted 
+                                        </button>
+                                    </li>
                                 </ul>
                             </div>
                         </div>
                     )}
-
+                    {/* Logout/Login & Profile Picture */}
                     <div className="d-flex justify-content-center align-items-center ms-auto gap-2 my-3">
                         <button type="button" onClick={handleLoginClick} className="btn btn-primary d-flex align-items-center justify-content-center">
                             {isLoggedIn ? "Logout" : (

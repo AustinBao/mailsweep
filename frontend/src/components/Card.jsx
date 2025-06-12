@@ -73,6 +73,34 @@ const Card = ({ id, sender, sender_address, link, image, emailCount, isUnsubscri
                 <h4><a target="_blank" href={link} onClick={handleUnsubClick}>Unsubscribe</a></h4>
                 <h4><a onClick={handleCleanInbox} href='#'>Clean Inbox</a></h4>
             </div>
+            
+            {/* Toast Message - Unsubscribe*/}
+            <div className="position-fixed bottom-0 end-0 p-3" style={{ zIndex: 1055 }}>
+                <div id="unsubToast" className="toast text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="2000">
+                    <div className="toast-header bg-success text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" className="bi bi-inbox-fill me-2" viewBox="0 0 16 16">
+                        <path d="M4.98 4a.5.5 0 0 0-.39.188L1.54 8H6a.5.5 0 0 1 .5.5 1.5 1.5 0 1 0 3 0A.5.5 0 0 1 10 8h4.46l-3.05-3.812A.5.5 0 0 0 11.02 4zm-1.17-.437A1.5 1.5 0 0 1 4.98 3h6.04a1.5 1.5 0 0 1 1.17.563l3.7 4.625a.5.5 0 0 1 .106.374l-.39 3.124A1.5 1.5 0 0 1 14.117 13H1.883a1.5 1.5 0 0 1-1.489-1.314l-.39-3.124a.5.5 0 0 1 .106-.374z" />
+                    </svg>
+                    <strong className="me-auto">Unsubscribe Successful!</strong>
+                    <small>Mail Sweep</small>
+                    <button type="button" className="btn-close btn-close-white ms-2 mb-1" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            </div>
+            {/* Toast Message - Delete*/}
+            <div className="position-fixed bottom-0 end-0 p-3" style={{ zIndex: 1055 }}>
+                <div id="deleteToast" className="toast text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="2000">
+                    <div className="toast-header bg-success text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" className="bi bi-inbox-fill me-2" viewBox="0 0 16 16">
+                        <path d="M4.98 4a.5.5 0 0 0-.39.188L1.54 8H6a.5.5 0 0 1 .5.5 1.5 1.5 0 1 0 3 0A.5.5 0 0 1 10 8h4.46l-3.05-3.812A.5.5 0 0 0 11.02 4zm-1.17-.437A1.5 1.5 0 0 1 4.98 3h6.04a1.5 1.5 0 0 1 1.17.563l3.7 4.625a.5.5 0 0 1 .106.374l-.39 3.124A1.5 1.5 0 0 1 14.117 13H1.883a1.5 1.5 0 0 1-1.489-1.314l-.39-3.124a.5.5 0 0 1 .106-.374z" />
+                    </svg>
+                    <strong className="me-auto">Deletion Successful!</strong>
+                    <small>Mail Sweep</small>
+                    <button type="button" className="btn-close btn-close-white ms-2 mb-1" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         </div> 

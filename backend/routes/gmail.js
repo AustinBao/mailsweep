@@ -141,6 +141,12 @@ router.get("/", async (req, res) => {
       pageToken: currentPageToken,
     })  
 
+    // await db.query(`
+    //     UPDATE users
+    //     SET total_mail_parsed = total_mail_parsed + 5
+    //     WHERE id = $1
+    //     `, [userId])
+
     let unsubLinks = []
     let senders = []
     let sender_addresses = []

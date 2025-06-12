@@ -97,31 +97,31 @@ router.post('/delete', async (req, res) => {
 });
 
 async function saveSubscriptionsToDB (userId, sender, sender_address, unsubLink, email_id, domain_pic, latest_date) {
-  const result = await db.query(`INSERT INTO subscriptions 
-    (user_id, email_id, sender, sender_address, unsubscribe_link, is_unsubscribed, is_deleted, unsubscribed_at, domain_pic, latest_date) 
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
-    ON CONFLICT (user_id, sender_address) DO NOTHING RETURNING id`, // will stop the error from being triggered if (user_id, sender_address) pair already exists.
-    [userId, email_id, sender, sender_address, unsubLink, false, false, null, domain_pic, latest_date]
-  );
+  const result = await db.query(`
+    INSERT INTO subscriptions 
+      (user_id, email_id, sender, sender_address, unsubscribe_link, is_unsubscribed, is_deleted, unsubscribed_at, domain_pic, latest_date) 
+    VALUES 
+      ($1, $2, $3, $4, $5, false, false, null, $6, $7) 
+    ON CONFLICT (user_id, sender_address) 
+    DO UPDATE SET 
+      email_id = EXCLUDED.email_id,
+      unsubscribe_link = EXCLUDED.unsubscribe_link,
+      domain_pic = EXCLUDED.domain_pic,
+      latest_date = GREATEST(subscriptions.latest_date, EXCLUDED.latest_date),
+      is_deleted = false
+    RETURNING id
+  `, [userId, email_id, sender, sender_address, unsubLink, domain_pic, latest_date]);
 
-  //idk what this does
-  if (result.rows.length === 0) {
-    const subResult = await db.query(`
-      SELECT id FROM subscriptions WHERE user_id = $1 AND sender_address = $2
-    `, [userId, sender_address]);
+  const subscriptionId = result.rows[0]?.id;
+  if (!subscriptionId) return;
 
-    const subscriptionId = subResult.rows[0]?.id;
-
-    if (subscriptionId) {
-      await db.query(`UPDATE subscriptions SET latest_date = $1 WHERE id = $2 AND (latest_date IS NULL OR latest_date < $1)`,
-         [latest_date, subscriptionId]);
-
-      await db.query(`INSERT INTO mail_to_delete (subscription_id, email_id) VALUES ($1, $2) ON CONFLICT (email_id) DO NOTHING`,
-         [subscriptionId, email_id]);
-    }
-  }
-
+  await db.query(`
+  INSERT INTO mail_to_delete (subscription_id, email_id)
+  VALUES ($1, $2)
+  ON CONFLICT (email_id) DO NOTHING
+  `, [subscriptionId, email_id]);
 }
+
 
 router.get("/", async (req, res) => {
   // req.isAuthenticated() is from Passport. Passport adds this new method to the req object.

@@ -77,7 +77,7 @@ const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm, sortOption,
                                             Most Emails 
                                         </button>
                                     </li>
-                                    <li><hr class="dropdown-divider m-0"/></li>
+                                    <li><hr className="dropdown-divider m-0"/></li>
                                     <li className="w-100">
                                         <button 
                                             className={`dropdown-item w-100 ${sortOption  === "least" ? "active" : ""}`} 
@@ -85,7 +85,7 @@ const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm, sortOption,
                                             Least Emails 
                                         </button>
                                     </li>   
-                                    <li><hr class="dropdown-divider m-0"/></li>
+                                    <li><hr className="dropdown-divider m-0"/></li>
                                     <li className="w-100">
                                         <button 
                                             className={`dropdown-item w-100 ${sortOption  === "recent" ? "active" : ""}`} 
@@ -93,7 +93,7 @@ const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm, sortOption,
                                             Most Recent 
                                         </button>
                                     </li>
-                                    <li><hr class="dropdown-divider m-0"/></li>
+                                    <li><hr className="dropdown-divider m-0"/></li>
                                     <li className="w-100">
                                         <button 
                                             className={`dropdown-item w-100 ${sortOption  === "oldest" ? "active" : ""}`} 
@@ -101,7 +101,7 @@ const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm, sortOption,
                                             Least Recent 
                                         </button>
                                     </li>
-                                    <li><hr class="dropdown-divider m-0"/></li>
+                                    <li><hr className="dropdown-divider m-0"/></li>
                                     <li className="w-100">
                                         <button 
                                             className={`dropdown-item w-100 ${sortOption  === "alphabetical" ? "active" : ""}`} 
@@ -126,7 +126,7 @@ const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm, sortOption,
                                             None 
                                         </button>
                                     </li>
-                                    <li><hr class="dropdown-divider m-0"/></li>
+                                    <li><hr className="dropdown-divider m-0"/></li>
                                     <li className="w-100">
                                         <button 
                                             className={`dropdown-item w-100 ${filterOption === "active" ? "active" : ""}`} 
@@ -134,7 +134,7 @@ const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm, sortOption,
                                             Active 
                                         </button>
                                     </li>
-                                    <li><hr class="dropdown-divider m-0"/></li>
+                                    <li><hr className="dropdown-divider m-0"/></li>
                                     <li className="w-100">
                                         <button
                                             className={`dropdown-item w-100 ${filterOption === "unsubscribed" ? "active" : ""}`} 
@@ -142,7 +142,7 @@ const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm, sortOption,
                                             Unsubscribed 
                                         </button>
                                     </li>
-                                    <li><hr class="dropdown-divider m-0"/></li>
+                                    <li><hr className="dropdown-divider m-0"/></li>
                                     <li className="w-100">
                                         <button 
                                             className={`dropdown-item w-100 ${filterOption === "deleted" ? "active" : ""}`} 

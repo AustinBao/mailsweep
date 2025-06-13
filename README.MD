@@ -1,10 +1,10 @@
-# Gmail Unsubscriber App 📬❌
+# Mail Sweep
 
 A full-stack web app that connects to your Gmail inbox, scans for email subscriptions, and helps you **unsubscribe** or **delete** emails in bulk.
 
 ---
 
-## 🔧 Features
+## Features
 
 - ✅ Google OAuth2 login with Passport.js
 - 📬 Scans your Gmail inbox progressively using the Gmail API
@@ -17,7 +17,7 @@ A full-stack web app that connects to your Gmail inbox, scans for email subscrip
 
 ---
 
-## 🗂️ Tech Stack
+## Tech Stack
 
 | Frontend      | Backend        | Database   | APIs           |
 |---------------|----------------|------------|----------------|
@@ -25,11 +25,3 @@ A full-stack web app that connects to your Gmail inbox, scans for email subscrip
 | Bootstrap     | Passport.js    | Supabase client            | Google OAuth2 |
 
 ---
-
-## 🚀 Getting Started
-
-### 1. Clone and Install
-```bash
-git clone https://github.com/your-username/gmail-unsubscriber.git
-cd gmail-unsubscriber
-npm install && cd client && npm install

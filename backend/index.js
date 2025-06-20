@@ -38,7 +38,7 @@ app.use('/mailcounter', mailCounterRoutes);
 app.use('/picture', pictureRoute);
 
 app.get('/', async (req, res) => {
-    response.status(200).json({message: 'Server is live'})
+    res.status(200).json({message: 'Server is live'})
 })
 
 app.listen(PORT, () => {

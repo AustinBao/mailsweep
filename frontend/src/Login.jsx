@@ -24,7 +24,7 @@ const Login = () => {
             take control of unwanted emails.
           </p>
 
-          <a href="http://localhost:3001/auth/google" className="text-decoration-none">
+          <a href="https://mailsweep.up.railway.app/auth/google" className="text-decoration-none">
             <button className="btn btn-outline-dark d-flex align-items-center gap-3 px-4 py-3 mx-auto">
               <FcGoogle size={24} />
               <span>Sign in with Google</span>

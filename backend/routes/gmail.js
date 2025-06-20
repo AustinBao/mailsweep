@@ -70,7 +70,7 @@ router.post('/delete', async (req, res) => {
   }
   const deleteCount = emailIds.length
   // setup google api
-  const oauth2Client = new google.auth.OAuth2( process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_SECRET, "http://localhost:3001/auth/google/callback" );
+  const oauth2Client = new google.auth.OAuth2( process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_SECRET, "https://mailsweep.up.railway.app/auth/google/callback" );
   oauth2Client.setCredentials({ access_token: req.user.accessToken, refresh_token: req.user.refreshToken });
   const gmail = google.gmail({ version: "v1", auth: oauth2Client });
   

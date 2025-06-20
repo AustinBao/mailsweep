@@ -14,7 +14,7 @@ passport.deserializeUser((user, cb) => {
 passport.use("google", new GoogleStrategy({  // GoogleStrategy is a Passport strategy that handles Google login for you
   clientID: process.env.GOOGLE_CLIENT_ID, //  from your Google Developer Console 
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,  // — proves your app is allowed to log people in.
-  callbackURL: "http://localhost:3001/auth/google/callback", // after the user logs in, Google redirects them back to this route on your server.
+  callbackURL: "https://mailsweep.up.railway.app/auth/google/callback", // after the user logs in, Google redirects them back to this route on your server.
   // userProfileURL: "https://www.goo gleapis.com/oauth2/v3/userinfo" // DEFAULT ROUTE. CAN REMOVE.
   }, async(accessToken, refreshToken, profile, cb) => {
     // accessToken: lets your server access the user’s Google data (like Gmail).

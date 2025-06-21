@@ -2,6 +2,7 @@ import cors from 'cors'
 import express from 'express'
 import session from 'express-session';  
 import passport from "./config/passport.js";
+import pgSession from 'connect-pg-simple'
 
 import authRoutes from './routes/auth.js';
 import gmailRoutes from './routes/gmail.js';

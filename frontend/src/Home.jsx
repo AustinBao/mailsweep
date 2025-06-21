@@ -140,7 +140,9 @@ const Home = () => {
     return true; // on none don't change order
   })
   // Apply searchBar (do this after filterOption so you don't show filtered emails)
-  .filter(m => m.sender.toLowerCase().includes(searchTerm.toLowerCase()))
+  mail.filter(m =>
+    (m.sender?.toLowerCase() || "").includes(searchTerm.toLowerCase())
+  )
   // Apply sortOption
   .sort((a, b) => {
     // Sort deleted to bottom

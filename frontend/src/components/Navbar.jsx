@@ -8,7 +8,7 @@ const Navbar = ({ isLoggedIn, profilePic, searchTerm, setSearchTerm, sortOption,
         if (!isLoggedIn) {
             navigate("/login");
         } else {
-            await axios.post(`${import.meta.env.VITE_API_URL}/auth/logout`, {}, { withCredentials: true });
+            await axios.post(`https://mailsweep.up.railway.app/auth/logout`, {}, { withCredentials: true });
             console.log("User logged out");
             navigate("/");
         }

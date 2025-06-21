@@ -19,11 +19,11 @@ const Home = () => {
   const navigate = useNavigate()
 
   useEffect(function checkAuthAndFetch() {
-    axios.get(`https://mailsweep.up.railway.app/auth/check-auth`, { withCredentials: true })
-    .then(() => axios.get(`https://mailsweep.up.railway.app/gmail`, { withCredentials: true }))
-    .then(() => axios.get(`https://mailsweep.up.railway.app/subscriptions`, { withCredentials: true }))
+    axios.get(`${import.meta.env.VITE_API_URL}/auth/check-auth`, { withCredentials: true })
+    .then(() => axios.get(`${import.meta.env.VITE_API_URL}/gmail`, { withCredentials: true }))
+    .then(() => axios.get(`${import.meta.env.VITE_API_URL}/subscriptions`, { withCredentials: true }))
     .then(res => setMail(res.data))
-    .then(() => axios.get(`https://mailsweep.up.railway.app/picture`, { withCredentials: true }))
+    .then(() => axios.get(`${import.meta.env.VITE_API_URL}/picture`, { withCredentials: true }))
     .then(res => setProfilePic(res.data))
     .catch(err => { 
       console.error("Not authenticated", err);
@@ -38,20 +38,20 @@ const Home = () => {
 
       while (!finished) {
         try {
-          const res = await axios.get(`https://mailsweep.up.railway.app/gmail`, { withCredentials: true });
+          const res = await axios.get(`${import.meta.env.VITE_API_URL}/gmail`, { withCredentials: true });
           if (res.data.done) {  // when backend returns {done: true}
             console.log("Finished reading inbox.");
             finished = true;
           } 
 
-          const subscriptions = await axios.get(`https://mailsweep.up.railway.app/subscriptions`, { withCredentials: true });
+          const subscriptions = await axios.get(`${import.meta.env.VITE_API_URL}/subscriptions`, { withCredentials: true });
           setMail(subscriptions.data);
           setIsLoading(false);
 
-          const counters = await axios.get(`https://mailsweep.up.railway.app/mailcounter`, { withCredentials: true });
+          const counters = await axios.get(`${import.meta.env.VITE_API_URL}/mailcounter`, { withCredentials: true });
           setMailCounters(counters.data); 
 
-          const userInfo = await axios.get(`https://mailsweep.up.railway.app/gmail/userinfo`, { withCredentials: true })
+          const userInfo = await axios.get(`${import.meta.env.VITE_API_URL}/gmail/userinfo`, { withCredentials: true })
           let totalMailRead = userInfo.data.totalMailParsed
           let inboxSize = userInfo.data.threadsTotal  
           console.log(totalMailRead)
@@ -81,18 +81,18 @@ const Home = () => {
 
     while (!finished) {
       try {
-        const res = await axios.get(`https://mailsweep.up.railway.app/gmail`, { withCredentials: true });
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/gmail`, { withCredentials: true });
         console.log(res)
         if (res.data.done) {
           console.log("Finished reading inbox.");
           finished = true;
         } 
         
-        const subscriptions = await axios.get(`https://mailsweep.up.railway.app/subscriptions`, { withCredentials: true });
+        const subscriptions = await axios.get(`${import.meta.env.VITE_API_URL}/subscriptions`, { withCredentials: true });
         setMail(subscriptions.data);
         setIsLoading(false);
 
-        const counters = await axios.get(`https://mailsweep.up.railway.app/mailcounter`, { withCredentials: true });
+        const counters = await axios.get(`${import.meta.env.VITE_API_URL}/mailcounter`, { withCredentials: true });
         setMailCounters(counters.data); 
           
       } catch (err) {

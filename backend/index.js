@@ -26,7 +26,7 @@ app.use(session({
   saveUninitialized: false, // Stores a session even before the user logs in. Set to false in docs.
   cookie: {
     maxAge: 1000 * 60 * 60 * 24,
-    sameSite: "none",       // allow cross-origin cookies in dev
+    sameSite: "None",       // allow cross-origin cookies in dev
     secure: false          // Railway uses HTTPS, but local frontend is HTTP
   }  // 1000 mil x 60 = 1 min x 60 = 1 hour * 24 = 1 day
 }));

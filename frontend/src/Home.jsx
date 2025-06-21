@@ -17,31 +17,20 @@ const Home = () => {
   const [filterOption, setFilterOption] = useState("none")
 
   const navigate = useNavigate()
-
   console.log("VITE_API_URL =", import.meta.env.VITE_API_URL);
 
-  useEffect(() => {
-  axios.get(`${import.meta.env.VITE_API_URL}/auth/check-auth`, { withCredentials: true })
-    .then(() => {
-      return Promise.all([
-        axios.get(`${import.meta.env.VITE_API_URL}/gmail`, { withCredentials: true }),
-        axios.get(`${import.meta.env.VITE_API_URL}/subscriptions`, { withCredentials: true }),
-        axios.get(`${import.meta.env.VITE_API_URL}/picture`, { withCredentials: true }),
-      ]);
-    })
-    .then(([gmailRes, subsRes, picRes]) => {
-      console.log("Subscriptions:", subsRes.data);
-      console.log("Picture:", picRes.data);
-      setMail(subsRes.data);        // subscriptions are what you display
-      setProfilePic(picRes.data);   // shows top-right avatar
-      setIsLoading(false);
-    })
-    .catch(err => {
+  useEffect(function checkAuthAndFetch() {
+    axios.get(`${import.meta.env.VITE_API_URL}/auth/check-auth`, { withCredentials: true })
+    .then(() => axios.get(`${import.meta.env.VITE_API_URL}/gmail`, { withCredentials: true }))
+    .then(() => axios.get(`${import.meta.env.VITE_API_URL}/subscriptions`, { withCredentials: true }))
+    .then(res => setMail(res.data))
+    .then(() => axios.get(`${import.meta.env.VITE_API_URL}/picture`, { withCredentials: true }))
+    .then(res => setProfilePic(res.data))
+    .catch(err => { 
       console.error("Not authenticated", err);
       navigate("/login");
     });
-  }, []);
-
+  }, []);  
 
   //useEffect for updating page (senders, email counts, progress bar)
   useEffect(() => {

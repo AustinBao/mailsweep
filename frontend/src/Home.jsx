@@ -28,6 +28,8 @@ const Home = () => {
       ]);
     })
     .then(([gmailRes, subsRes, picRes]) => {
+      console.log("Subscriptions:", subsRes.data);
+      console.log("Picture:", picRes.data);
       setMail(subsRes.data);        // subscriptions are what you display
       setProfilePic(picRes.data);   // shows top-right avatar
       setIsLoading(false);

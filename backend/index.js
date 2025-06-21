@@ -11,7 +11,7 @@ import pictureRoute from './routes/picture.js';
 
 
 const app = express()
-const PORT = 3001
+const PORT = process.env.PORT || 3001;  // Railway automatically sets process.env.PORT
 
 app.use(express.json());
 
@@ -42,9 +42,9 @@ app.use('/mailcounter', mailCounterRoutes);
 app.use('/picture', pictureRoute);
 
 app.get('/', async (req, res) => {
-    res.status(200).json({message: 'Server is live'})
+  res.status(200).json({message: 'Server is live'})
 })
 
 app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`)
+  console.log(`Server running on ${PORT}`)
 })

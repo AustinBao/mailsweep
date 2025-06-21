@@ -13,6 +13,8 @@ import pictureRoute from './routes/picture.js';
 const app = express()
 const PORT = process.env.PORT || 3001;  // Railway automatically sets process.env.PORT
 
+const PgSession = pgSession(session)
+
 app.use(express.json());
 
 app.use(cors({
@@ -21,6 +23,10 @@ app.use(cors({
 }));
 
 app.use(session({
+  store: new PgSession({
+    pool: db,            // Uses pg.Pool from db.js
+    tableName: 'session' // Optional: default is 'session'
+  }),
   secret: process.env.SECRET_KEY, // prevents fake logins
   resave: false, // the session is only saved if it was modified.
   saveUninitialized: false, // Stores a session even before the user logs in. Set to false in docs.

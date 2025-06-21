@@ -27,7 +27,7 @@ app.use(session({
   cookie: {
     maxAge: 1000 * 60 * 60 * 24,
     sameSite: "none",       // allow cross-origin cookies in dev
-    secure: true          // Railway uses HTTPS, but local frontend is HTTP
+    secure: false          // Railway uses HTTPS, but local frontend is HTTP
   }  // 1000 mil x 60 = 1 min x 60 = 1 hour * 24 = 1 day
 }));
 

@@ -16,6 +16,8 @@ import pictureRoute from './routes/picture.js';
 const app = express()
 const PORT = process.env.PORT || 3001;  // Railway automatically sets process.env.PORT
 
+app.set("trust proxy", 1); // Trust first proxy (important for Railway + secure cookies)
+
 const PgSession = pgSession(session)
 
 app.use(express.json());

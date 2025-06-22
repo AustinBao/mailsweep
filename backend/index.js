@@ -23,7 +23,7 @@ const PgSession = pgSession(session)
 app.use(express.json());
 
 app.use(cors({
-  origin: 'https://mailsweep-frontend.vercel.app', 
+  origin: 'https://www.mailsweep.xyz', 
   credentials: true  // tells the server to allow cookies from frontend
 }));
 

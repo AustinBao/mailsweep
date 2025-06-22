@@ -6,6 +6,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import App from './App'
 import Home from './Home'
 import Login from "./Login"
+import PrivacyPolicy from './PrivacyPolicy'
+import TermsOfService from './TermsOfService'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
     <BrowserRouter>  
@@ -13,6 +15,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <Route path="/" element={<App />} />
       <Route path="/login" element={<Login />} />
       <Route path="/home" element={<Home />} />
+      <Route path="/privacy" element={<PrivacyPolicy />} />
+      <Route path="/terms" element={<TermsOfService />} />
     </Routes>
   </BrowserRouter> 
 )

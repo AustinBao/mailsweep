@@ -13,8 +13,8 @@ router.get("/google", passport.authenticate("google", {
 
 // What to do based on Google log in.
 router.get("/google/callback", passport.authenticate("google", {
-  successRedirect: "https://mailsweep-frontend.vercel.app/home",       
-  failureRedirect: "https://mailsweep-frontend.vercel.app/login",
+  successRedirect: "https://www.mailsweep.xyz/home",       
+  failureRedirect: "https://www.mailsweep.xyz/login",
 }));
 
 

@@ -1,17 +1,15 @@
 
 const Footer = () => {
    return (
-    <div className="container">
-        <footer className="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
-            <div className="col-md-4 d-flex align-items-center">
-                <a href="/" className="mb-3 me-2 mb-md-0 text-body-secondary text-decoration-none lh-1" aria-label="Bootstrap">
-                    <svg className="bi" width="30" height="24" aria-hidden="true">
-                    <use xlinkHref="#bootstrap"></use>
-                    </svg>
-                </a>
-                <span className="mb-3 mb-md-0 text-body-secondary">© 2025 Mail Sweep, Inc</span> 
+    <footer className="border-top py-5 w-100">
+    <div className="container" style={{ maxWidth: "70%" }}>
+        <div className="d-flex flex-wrap justify-content-between align-items-center">
+            <div className="d-flex flex-row gap-5">
+                <a href="/" className="text-body-secondary text-decoration-none">Home</a>
+                <a href="/privacy" className="text-body-secondary text-decoration-none">Privacy Policy</a>
+                <a href="/terms" className="text-body-secondary text-decoration-none">Terms of Service</a>
             </div>
-            {/* <ul className="nav col-md-4 justify-content-end list-unstyled d-flex">
+            <ul className="nav col-md-4 justify-content-end list-unstyled d-flex">
                 <li className="ms-3">
                     <a className="text-body-secondary" target="_blank" href="https://github.com/AustinBao/mailsweep" aria-label="Instagram">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" className="bi bi-github" viewBox="0 0 16 16">
@@ -19,16 +17,10 @@ const Footer = () => {
                         </svg> 
                     </a>
                 </li>
-                <li className="ms-3"> 
-                    <a className="text-body-secondary" href="#" aria-label="Facebook">
-                    <svg className="bi" width="24" height="24">
-                        <use xlink:href="#facebook"></use>
-                    </svg>
-                    </a>
-                </li>
-            </ul> */}
-        </footer>
+            </ul>
+        </div>
     </div>
+    </footer>
   );
 }
 

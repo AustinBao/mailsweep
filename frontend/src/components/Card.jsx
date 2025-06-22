@@ -4,7 +4,7 @@ const Card = ({ id, sender, sender_address, link, image, emailCount, isUnsubscri
     
     async function handleUnsubClick () {
         try{ 
-            await axios.post("http://localhost:3001/gmail/unsub", {email_id: id}, { withCredentials: true })
+            await axios.post(`${import.meta.env.VITE_API_URL}/gmail/unsub`, {email_id: id}, { withCredentials: true })
             onUnsubscribe(id);
         } catch (err) {
             console.log("Error with unsubscribing: " + err);
@@ -13,7 +13,7 @@ const Card = ({ id, sender, sender_address, link, image, emailCount, isUnsubscri
 
     async function handleCleanInbox () {
         try{ 
-            await axios.post("http://localhost:3001/gmail/delete", {subscription_id: id}, { withCredentials: true })
+            await axios.post(`${import.meta.env.VITE_API_URL}/gmail/delete`, {subscription_id: id}, { withCredentials: true })
             onDelete(id); // updates parent state (marks card as deleted + resets counter)
         } catch (err) {
             console.log("Error with delete: " + err);

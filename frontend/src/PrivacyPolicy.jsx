@@ -44,7 +44,7 @@ const PrivacyPolicy = () => {
           <h3 className="mt-5">Data Retention and Deletion</h3>
           <p>
             We retain your metadata only as long as needed to provide our services. You may request deletion of your stored data
-            at any time by contacting us at <a href="mailto:support@mailsweep.xyz">support@mailsweep.xyz</a>.
+            at any time by contacting us at <a href="mailto:mailsweepemails@gmail.com">mailsweepemails@gmail.com</a>.
           </p>
 
           <h3 className="mt-5">Third-Party Services</h3>

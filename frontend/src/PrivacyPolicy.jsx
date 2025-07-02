@@ -16,7 +16,7 @@ const PrivacyPolicy = () => {
         <div className="text-start">
           <h3 className="mt-5">What We Collect</h3>
           <ul>
-            <li>Your Google account basic profile (name, email, profile picture)</li>
+            <li>Your Google account basic profile (name, email, and profile picture)</li>
             <li>Permission to view and manage your Gmail inbox (for unsubscribing & deleting emails)</li>
           </ul>
 
@@ -28,16 +28,28 @@ const PrivacyPolicy = () => {
           </ul>
 
           <h3 className="mt-5">Data Storage</h3>
-          <p>We do not store the subject of your emails. We may store sender metadata and your unsubscribe preferences securely.</p>
+          <p>
+            We do not store the subject or body of your emails. We may store sender metadata and your unsubscribe preferences securely.
+            Security procedures are in place to protect the confidentiality of your data. All data in transit is encrypted via HTTPS,
+            and any stored data is encrypted at rest. Access is limited to authorized personnel only.
+          </p>
+
+          <h3 className="mt-5">Limited Use Disclosure</h3>
+          <p>
+            MailSweep’s use of information received from Google APIs will adhere to the Google API Services User Data Policy,
+            including the Limited Use requirements. We only use your Google user data to provide or improve MailSweep’s features.
+            We do not share, sell, or transfer your data to third parties for unrelated purposes, such as advertising.
+          </p>
+          
+          <h3 className="mt-5">Data Retention and Deletion</h3>
+          <p>
+            We retain your metadata only as long as needed to provide our services. You may request deletion of your stored data
+            at any time by contacting us at <a href="mailto:support@mailsweep.xyz">support@mailsweep.xyz</a>.
+          </p>
 
           <h3 className="mt-5">Third-Party Services</h3>
-          <p>We use Google APIs and OAuth for authentication. By using MailSweep, you agree to Google’s <a href="https://policies.google.com/privacy" target="_blank" rel="noreferrer">Privacy Policy</a>.</p>
+          <p class="mb-5"> We use Google APIs and OAuth for authentication. By using MailSweep, you agree to Google’s <a href="https://policies.google.com/privacy" target="_blank" rel="noreferrer">Privacy Policy</a>. Also, by using MailSweep, you consent to this privacy policy.</p>
 
-          <h3 className="mt-5">Your Consent</h3>
-          <p>By using MailSweep, you consent to this privacy policy.</p>
-
-          <h3 className="mt-5">Contact Us</h3>
-          <p>Questions? Email us at <a href="mailto:support@mailsweep.xyz">support@mailsweep.xyz</a>.</p>
         </div>
       </div>
       <Footer />

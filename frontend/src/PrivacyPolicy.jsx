@@ -48,7 +48,7 @@ const PrivacyPolicy = () => {
           </p>
 
           <h3 className="mt-5">Third-Party Services</h3>
-          <p class="mb-5"> We use Google APIs and OAuth for authentication. By using MailSweep, you agree to Google’s <a href="https://policies.google.com/privacy" target="_blank" rel="noreferrer">Privacy Policy</a>. Also, by using MailSweep, you consent to this privacy policy.</p>
+          <p class="mb-5"> We use Google APIs and OAuth for authentication. By using MailSweep, you agree to Google’s <a href="https://policies.google.com/privacy" target="_blank" rel="noreferrer">privacy policy</a>. Also, by using MailSweep, you consent to this privacy policy.</p>
 
         </div>
       </div>

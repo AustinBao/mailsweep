@@ -40,7 +40,7 @@ router.get("/userinfo", async (req, res) => {
 })
 
 
-router.post('/unsub', async (req, res) => { 
+router.patch('/unsub', async (req, res) => { 
   const email_id = req.body.email_id;
   await db.query(`UPDATE subscriptions SET is_unsubscribed = $1 WHERE id = $2`, 
     [true, email_id]
@@ -49,7 +49,7 @@ router.post('/unsub', async (req, res) => {
 });
 
 
-router.post('/delete', async (req, res) => {
+router.delete('/delete', async (req, res) => {
   if (!req.isAuthenticated()) {
     return res.status(401).send("Not authenticated");
   }

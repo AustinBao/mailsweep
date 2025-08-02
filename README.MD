@@ -29,28 +29,28 @@
 
 ## 🌟 **Key Features**
 
-### **🧵 Email Parsing**
+### **🧵 Simple Email Parsing**
 ```python
 "From: Amazon Deals" → 340 emails found → Bulk Delete or Unsubscribe
 "From: Newsletter Weekly" → Unsubscribe link detected
 ```
 
 ### **⚙️ Progressive Gmail Scanning**
-```json
-// Fetches Gmail threads in batches to avoid rate limits
+```javascript
 Batch 1: 100 threads
 Batch 2: 100 threads
 ...
 ```
-
+- Fetches Gmail threads in batches to avoid rate limits
 ### **💾 Resume Scan from Last Session**
+
+
 ```json
-// Stored as Unix timestamp for simplicity, easy comparison, and timezone consistency (always UTC)
 {
   "lastScanTimestamp": "1750614941"
 }
 ```
-
+- Stored as Unix timestamp for simplicity, easy comparison, and timezone consistency (always UTC)
 ---
 
 ## 🛠️ **Tech Stack**
